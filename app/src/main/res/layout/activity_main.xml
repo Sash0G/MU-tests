@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#09ed6c">
 
     <Button
         android:id="@+id/button1"
@@ -15,12 +16,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
 
+        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.4"
-        app:layout_constraintWidth_percent="0.5"
-        app:layout_constraintHeight_percent="0.05" />
+        app:layout_constraintVertical_bias="0.399"
+        app:layout_constraintWidth_percent="0.5" />
 
     <Button
         android:id="@+id/button2"
