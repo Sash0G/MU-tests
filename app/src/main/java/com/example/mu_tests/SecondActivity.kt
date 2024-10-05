@@ -9,6 +9,19 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class SecondActivity : AppCompatActivity() {
+
+    private lateinit var button1: Button
+    private lateinit var button2: Button
+    private lateinit var button3: Button
+    private lateinit var button4: Button
+
+    private fun changeState(clickedButton: Button, clicked: Boolean) {
+        button1.setBackgroundResource(R.drawable.rectangle_button)
+        button2.setBackgroundResource(R.drawable.rectangle_button)
+        button3.setBackgroundResource(R.drawable.rectangle_button)
+        button4.setBackgroundResource(R.drawable.rectangle_button)
+        if (!clicked) clickedButton.setBackgroundResource(R.drawable.rectangle_button_clicked)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -18,22 +31,29 @@ class SecondActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val myButton: Button = findViewById(R.id.myButton)
-        var isClicked = false
-        myButton.setOnClickListener {
-
-            if (isClicked) {
-                // Change back to the original state
-                myButton.text = "Click Me"
-                myButton.setBackgroundColor(Color.BLUE)
-            } else {
-                // Change to clicked state
-                myButton.text = "Clicked!"
-                myButton.setBackgroundColor(Color.RED)
-            }
-
-            // Toggle the flag
-            isClicked = !isClicked
+        button1 = findViewById(com.example.mu_tests.R.id.FirstChoice)
+        button2 = findViewById(R.id.SecondChoice)
+        button3 = findViewById(R.id.ThirdChoice)
+        button4 = findViewById(R.id.FourthChoice)
+        var isClicked1 = false;
+        var isClicked2 = false;
+        var isClicked3 = false;
+        var isClicked4 = false
+        button1.setOnClickListener {
+            changeState(button1, isClicked1)
+            isClicked1 = !isClicked1; isClicked2 = false; isClicked3 = false; isClicked4 = false
+        }
+        button2.setOnClickListener {
+            changeState(button2, isClicked2)
+            isClicked2 = !isClicked2; isClicked1 = false; isClicked3 = false; isClicked4 = false
+        }
+        button3.setOnClickListener {
+            changeState(button3, isClicked3)
+            isClicked3 = !isClicked3; isClicked1 = false; isClicked2 = false; isClicked4 = false
+        }
+        button4.setOnClickListener {
+            changeState(button4, isClicked4)
+            isClicked4 = !isClicked4; isClicked1 = false; isClicked2 = false; isClicked3 = false
         }
     }
 }
