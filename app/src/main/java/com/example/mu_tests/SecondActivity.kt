@@ -3,6 +3,7 @@ package com.example.mu_tests
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -14,7 +15,7 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var button2: Button
     private lateinit var button3: Button
     private lateinit var button4: Button
-
+    private lateinit var question: TextView
     private fun changeState(clickedButton: Button, clicked: Boolean) {
         button1.setBackgroundResource(R.drawable.rectangle_button)
         button2.setBackgroundResource(R.drawable.rectangle_button)
@@ -31,10 +32,12 @@ class SecondActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        button1 = findViewById(com.example.mu_tests.R.id.FirstChoice)
+        button1 = findViewById(R.id.FirstChoice)
         button2 = findViewById(R.id.SecondChoice)
         button3 = findViewById(R.id.ThirdChoice)
         button4 = findViewById(R.id.FourthChoice)
+        question = findViewById(R.id.questionMain)
+        question.text = "dsad"
         var isClicked1 = false;
         var isClicked2 = false;
         var isClicked3 = false;
