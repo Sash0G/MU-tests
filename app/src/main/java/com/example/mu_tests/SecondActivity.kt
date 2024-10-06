@@ -32,6 +32,7 @@ class SecondActivity : AppCompatActivity() {
     private var isClicked3 = false
     private var isClicked4 = false
     private var chosenAnswer = Array(30) { 0 }
+
     data class CsvRow(
         val question: String,
         val option1: String,
@@ -41,10 +42,10 @@ class SecondActivity : AppCompatActivity() {
         val answer: String
     )
 
-    private lateinit var dataList : List<CsvRow>
-    private lateinit var set1Data : List<CsvRow>
-    private lateinit var set2Data : List<CsvRow>
-    private fun readCSV(context: Context,fileName: String) : List<CsvRow>{
+    private lateinit var dataList: List<CsvRow>
+    private lateinit var set1Data: List<CsvRow>
+    private lateinit var set2Data: List<CsvRow>
+    private fun readCSV(context: Context, fileName: String): List<CsvRow> {
 
         // Create a CSV parser with a semicolon as the delimiter
         val csvParser = CSVParserBuilder().withSeparator(';').build()
@@ -140,20 +141,21 @@ class SecondActivity : AppCompatActivity() {
             insets
         }
         options = listOf(
-        findViewById(R.id.FirstChoice),
-        findViewById(R.id.SecondChoice),
-        findViewById(R.id.ThirdChoice),
-        findViewById(R.id.FourthChoice))
+            findViewById(R.id.FirstChoice),
+            findViewById(R.id.SecondChoice),
+            findViewById(R.id.ThirdChoice),
+            findViewById(R.id.FourthChoice)
+        )
 
         question = findViewById(R.id.questionMain)
         nextButton = findViewById(R.id.next)
         prevButton = findViewById(R.id.prev)
         finishButton = findViewById(R.id.finish)
-        set1Data = readCSV(this,"set1.csv")
-        set2Data = readCSV(this,"set2.csv")
-        set1Data.shuffled()
-        set2Data.shuffled()
-        dataList = set1Data.subList(0, 20) + set2Data.subList(0, 11)
+        set1Data = readCSV(this, "set1.csv")
+        set2Data = readCSV(this, "set2.csv")
+        set1Data = set1Data.shuffled()
+        set2Data = set2Data.shuffled()
+        dataList = set1Data.subList(0, 20) + set2Data.subList(0, 10)
         questionNum = 0
         getNextQuestion(questionNum)
         nextButton.setOnClickListener {
@@ -165,7 +167,10 @@ class SecondActivity : AppCompatActivity() {
                 dataList[questionNum].answer
             )
             questionNum++;
-            if(chosenAnswer[questionNum] != 0)changeState(options[chosenAnswer[questionNum] - 1], false)
+            if (chosenAnswer[questionNum] != 0) changeState(
+                options[chosenAnswer[questionNum] - 1],
+                false
+            )
             else changeState(options[0], true)
             if (questionNum == 29) {
                 nextButton.visibility = Button.INVISIBLE
@@ -177,7 +182,10 @@ class SecondActivity : AppCompatActivity() {
         }
         prevButton.setOnClickListener {
             questionNum--;
-            if(chosenAnswer[questionNum] != 0)changeState(options[chosenAnswer[questionNum] - 1], false)
+            if (chosenAnswer[questionNum] != 0) changeState(
+                options[chosenAnswer[questionNum] - 1],
+                false
+            )
             else changeState(options[0], true)
             if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
             nextButton.visibility = Button.VISIBLE
@@ -195,11 +203,12 @@ class SecondActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Alert")
             builder.setMessage("You have " + correct.cardinality() + " correct answers out of 30")
-            builder.setPositiveButton("Start over") { dialog, which ->
+            builder.setPositiveButton("Start over") { _, _ ->
                 // Handle the OK button click here
-                set1Data.shuffled()
-                set2Data.shuffled()
-                dataList = set1Data.subList(0, 19) + set2Data.subList(0, 10)
+                set1Data = set1Data.shuffled()
+                set2Data = set2Data.shuffled()
+                dataList = set1Data.subList(0, 20) + set2Data.subList(0, 10
+                )
                 questionNum = 0
                 correct.clear()
                 getNextQuestion(questionNum)
