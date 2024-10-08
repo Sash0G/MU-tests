@@ -34,7 +34,7 @@ class SecondActivity : AppCompatActivity() {
     private var isClicked3 = false
     private var isClicked4 = false
     private var chosenAnswer = Array(70) { "" }
-    private val map = mapOf("а" to 0, "б" to 1, "в" to 2, "г" to 3)
+    private val map = mapOf("а" to 0, "б" to 1, "в" to 2, "г" to 3,"да" to 0, "не" to 1)
 
     data class FourOptions(
         val question: String,
@@ -188,7 +188,7 @@ class SecondActivity : AppCompatActivity() {
                 blankQuestionsPage.visibility = LinearLayout.VISIBLE
                 question.visibility = TextView.INVISIBLE
             }
-            if(questionNum==69){
+            if(questionNum==49){
                 for (option in options)
                     option.visibility = Button.VISIBLE
                 blankQuestionsPage.visibility = LinearLayout.INVISIBLE
@@ -230,7 +230,7 @@ class SecondActivity : AppCompatActivity() {
                 blankQuestionsPage.visibility = LinearLayout.INVISIBLE
                 question.visibility = TextView.VISIBLE
             }
-            if(questionNum==70) {
+            if(questionNum==40) {
                 for (option in options)
                     option.visibility = Button.INVISIBLE
                 blankQuestionsPage.visibility = LinearLayout.VISIBLE
