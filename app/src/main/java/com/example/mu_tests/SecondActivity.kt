@@ -110,6 +110,14 @@ class SecondActivity : AppCompatActivity() {
                 applyTo(questionLayout)
             }
         }
+        val constraintSet = ConstraintSet().apply{
+            clone(questionLayout)
+            connect(firstEditText.id,ConstraintSet.START,textViewIds[textViewIds.size-1],ConstraintSet.START)
+            connect(firstEditText.id,ConstraintSet.END,questionLayout.id,ConstraintSet.END)
+            setHorizontalBias(firstEditText.id,0.0f)
+            applyTo(questionLayout)
+        }
+
     }
 
     private fun checkAnswer() {

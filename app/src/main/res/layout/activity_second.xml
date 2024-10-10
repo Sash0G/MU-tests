@@ -131,6 +131,19 @@
                 app:layout_constraintWidth_percent="0.85" />
 
 
+            <EditText
+                android:id="@+id/firstEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+
+            <EditText
+                android:id="@+id/secondEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.AppCompatButton
