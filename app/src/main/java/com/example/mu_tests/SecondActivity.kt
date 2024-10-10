@@ -59,18 +59,20 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var set4Data: List<DataFormat>
 
     private fun getNextQuestionOptionsBlanks(questionText: String) {
+        val parts = questionText.split('_')
         val textPaint = TextView(this).paint
         val availableWidth = questionLayout.width.toFloat()-20
         val textViewIds = mutableListOf<Int>()
-        var remainingText = questionText
+        var remainingText = parts[0]
         println(remainingText)
         var br = 0
-        while (remainingText.isNotEmpty() && br++ < 5) {
+        while (remainingText.isNotEmpty()) {
             println("This is the: " + remainingText)
             var ind = textPaint.breakText(remainingText, true, availableWidth, null)
             if (remainingText.lastIndexOf(' ', ind) != -1) ind = remainingText.lastIndexOf(' ', ind)
             val textToShow = remainingText.substring(0, ind)
-            if (ind + 1 < remainingText.length) remainingText = remainingText.substring(ind + 1)
+            remainingText = if (ind + 1 < remainingText.length) remainingText.substring(ind + 1)
+            else ""
             val textView = TextView(this).apply {
                 text = textToShow
                 id = View.generateViewId()
@@ -110,6 +112,79 @@ class SecondActivity : AppCompatActivity() {
                 applyTo(questionLayout)
             }
         }
+        val constraintSet = ConstraintSet().apply {
+            clone(questionLayout)
+            connect(
+                firstEditText.id,
+                ConstraintSet.START,
+                textViewIds[textViewIds.size-1],
+                ConstraintSet.START,
+            )
+            connect(firstEditText.id, ConstraintSet.END, questionLayout.id, ConstraintSet.END)
+            setHorizontalBias(firstEditText.id, 0.0f)
+            if(textViewIds.size)
+            connect(
+                firstEditText.id,
+                ConstraintSet.TOP,
+                textViewIds[textViewIds.size-2],
+                ConstraintSet.BOTTOM
+            )
+            connect(firstEditText.id, ConstraintSet.BOTTOM, questionLayout.id, ConstraintSet.BOTTOM)
+            applyTo(questionLayout)
+        }
+        firstEditText.visibility=EditText.VISIBLE
+        /*
+
+        textViewIds.clear()
+        remainingText = parts[1]
+        println(remainingText)
+        br = 0
+        while (remainingText.isNotEmpty() && br++ < 5) {
+            println("This is the: " + remainingText)
+            var ind = textPaint.breakText(remainingText, true, availableWidth, null)
+            if (remainingText.lastIndexOf(' ', ind) != -1) ind = remainingText.lastIndexOf(' ', ind)
+            val textToShow = remainingText.substring(0, ind)
+            remainingText = if (ind + 1 < remainingText.length) remainingText.substring(ind + 1)
+            else ""
+            val textView = TextView(this).apply {
+                text = textToShow
+                id = View.generateViewId()
+                textSize = 16f
+                setTextColor(Color.BLACK)
+            }
+            questionLayout.addView(textView)
+            textViewIds.add(textView.id)
+        }
+        for (i in textViewIds.indices) {
+            val constraintSet = ConstraintSet().apply {
+                clone(questionLayout)
+                connect(
+                    textViewIds[i],
+                    ConstraintSet.START,
+                    questionLayout.id,
+                    ConstraintSet.START,
+                )
+                connect(textViewIds[i], ConstraintSet.END, questionLayout.id, ConstraintSet.END)
+                setHorizontalBias(textViewIds[i], 0.6f)
+
+                if (i != 0) connect(
+                    textViewIds[i],
+                    ConstraintSet.TOP,
+                    lastId,
+                    ConstraintSet.BOTTOM
+                )
+                else connect(
+                    textViewIds[i],
+                    ConstraintSet.TOP,
+                    questionLayout.id,
+                    ConstraintSet.TOP
+                )
+                connect(textViewIds[i], ConstraintSet.BOTTOM, questionLayout.id, ConstraintSet.BOTTOM)
+                if (i == 0) setVerticalBias(textViewIds[i], 0.3f)
+                else setVerticalBias(textViewIds[i], 0.05f)
+                applyTo(questionLayout)
+            }
+        }*/
     }
 
     private fun checkAnswer() {
@@ -205,9 +280,9 @@ class SecondActivity : AppCompatActivity() {
         finishButton = findViewById(R.id.finish)
         startOverButton = findViewById(R.id.startOver)
 //        firstTextView = findViewById(R.id.FirstTextView)
-//        firstEditText = findViewById(R.id.FirstEditText)
+        firstEditText = findViewById(R.id.firstEditText)
 //        secondTextView = findViewById(R.id.SecondTextView)
-//        secondEditText = findViewById(R.id.SecondEditText)
+        secondEditText = findViewById(R.id.secondEditText)
 //        thirdTextView = findViewById(R.id.ThirdTextView)
         textResult = findViewById(R.id.textView)
         questionLayout = findViewById(R.id.questionLayout)
