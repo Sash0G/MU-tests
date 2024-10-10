@@ -1,16 +1,15 @@
 package com.example.mu_tests
 
 import android.content.Context
-import com.example.mu_tests.SecondActivity.BlankQuestions
-import com.example.mu_tests.SecondActivity.FourOptions
+import com.example.mu_tests.SecondActivity.DataFormat
 import com.opencsv.CSVParserBuilder
 import com.opencsv.CSVReaderBuilder
 import java.io.InputStreamReader
 
-fun readGroup1(context: Context, fileName: String): List<FourOptions> {
+fun readGroup1(context: Context, fileName: String): List<DataFormat> {
 
     val csvParser = CSVParserBuilder().withSeparator(';').build()
-    val data = mutableListOf<FourOptions>()
+    val data = mutableListOf<DataFormat>()
     val inputStream = context.assets.open(fileName)
     val reader =
         CSVReaderBuilder(InputStreamReader(inputStream)).withCSVParser(csvParser).build()
@@ -18,7 +17,7 @@ fun readGroup1(context: Context, fileName: String): List<FourOptions> {
     var nextLine: Array<String>?
     while (reader.readNext().also { nextLine = it } != null) {
         if (nextLine?.size == 6) {
-            val row = FourOptions(
+            val row = DataFormat(
                 question = nextLine!![0],
                 option1 = nextLine!![1],
                 option2 = nextLine!![2],
@@ -33,10 +32,10 @@ fun readGroup1(context: Context, fileName: String): List<FourOptions> {
     return data
 }
 
-fun readGroup2(context: Context, fileName: String): List<FourOptions> {
+fun readGroup2(context: Context, fileName: String): List<DataFormat> {
 
     val csvParser = CSVParserBuilder().withSeparator(';').build()
-    val data = mutableListOf<FourOptions>()
+    val data = mutableListOf<DataFormat>()
     val inputStream = context.assets.open(fileName)
     val reader =
         CSVReaderBuilder(InputStreamReader(inputStream)).withCSVParser(csvParser).build()
@@ -44,7 +43,7 @@ fun readGroup2(context: Context, fileName: String): List<FourOptions> {
     var nextLine: Array<String>?
     while (reader.readNext().also { nextLine = it } != null) {
         if (nextLine?.size == 2) {
-            val row = FourOptions(
+            val row = DataFormat(
                 question = nextLine!![0],
                 answer = nextLine!![1],
                 option1 = "",

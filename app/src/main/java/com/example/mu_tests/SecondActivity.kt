@@ -1,8 +1,10 @@
 package com.example.mu_tests
 
+import android.graphics.Color
 import android.graphics.Color.GREEN
 import android.graphics.Color.RED
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +15,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import java.util.BitSet
+import androidx.constraintlayout.widget.ConstraintSet
 
 class SecondActivity : AppCompatActivity() {
 
@@ -29,6 +32,7 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var thirdTextView: TextView
     private lateinit var textResult: TextView
     private lateinit var blankQuestionsPage: ConstraintLayout
+    private lateinit var questionLayout: ConstraintLayout
     private val correct = BitSet(70)
     private var questionNum = 0
     private var isClicked1 = false
@@ -38,7 +42,7 @@ class SecondActivity : AppCompatActivity() {
     private var chosenAnswer = Array(70) { "" }
     private val map = mapOf("а" to 0, "б" to 1, "в" to 2, "г" to 3, "да" to 0, "не" to 1)
 
-    data class FourOptions(
+    data class DataFormat(
         val question: String,
         val option1: String,
         val option2: String,
@@ -47,38 +51,80 @@ class SecondActivity : AppCompatActivity() {
         val answer: String
     )
 
-    data class BlankQuestions(
-        val question: String,
-        val answer: String
-    )
 
-    private lateinit var dataList: List<FourOptions>
-    private lateinit var set1Data: List<FourOptions>
-    private lateinit var set2Data: List<FourOptions>
-    private lateinit var set3Data: List<FourOptions>
-    private lateinit var set4Data: List<FourOptions>
+    private lateinit var dataList: List<DataFormat>
+    private lateinit var set1Data: List<DataFormat>
+    private lateinit var set2Data: List<DataFormat>
+    private lateinit var set3Data: List<DataFormat>
+    private lateinit var set4Data: List<DataFormat>
 
     private fun getNextQuestionOptionsBlanks(questionText: String) {
-        val parts = questionText.split("_")
-        println(parts)
-        firstTextView.text = parts[0]
-        firstEditText.text.clear()
-        secondTextView.text = parts[1]
-        secondEditText.text.clear()
-        if (parts.size > 2) thirdTextView.text = parts[2]
+        val textPaint = TextView(this).paint
+        val availableWidth = questionLayout.width.toFloat()-20
+        val textViewIds = mutableListOf<Int>()
+        var remainingText = questionText
+        println(remainingText)
+        var br = 0
+        while (remainingText.isNotEmpty() && br++ < 5) {
+            println("This is the: " + remainingText)
+            var ind = textPaint.breakText(remainingText, true, availableWidth, null)
+            if (remainingText.lastIndexOf(' ', ind) != -1) ind = remainingText.lastIndexOf(' ', ind)
+            val textToShow = remainingText.substring(0, ind)
+            if (ind + 1 < remainingText.length) remainingText = remainingText.substring(ind + 1)
+            val textView = TextView(this).apply {
+                text = textToShow
+                id = View.generateViewId()
+                textSize = 16f
+                setTextColor(Color.BLACK)
+            }
+            questionLayout.addView(textView)
+            textViewIds.add(textView.id)
+        }
+        for (i in textViewIds.indices) {
+            val constraintSet = ConstraintSet().apply {
+                clone(questionLayout)
+                connect(
+                    textViewIds[i],
+                    ConstraintSet.START,
+                    questionLayout.id,
+                    ConstraintSet.START,
+                )
+                connect(textViewIds[i], ConstraintSet.END, questionLayout.id, ConstraintSet.END)
+                setHorizontalBias(textViewIds[i], 0.6f)
+
+                if (i != 0) connect(
+                    textViewIds[i],
+                    ConstraintSet.TOP,
+                    textViewIds[i - 1],
+                    ConstraintSet.BOTTOM
+                )
+                else connect(
+                    textViewIds[i],
+                    ConstraintSet.TOP,
+                    questionLayout.id,
+                    ConstraintSet.TOP
+                )
+                connect(textViewIds[i], ConstraintSet.BOTTOM, questionLayout.id, ConstraintSet.BOTTOM)
+                if (i == 0) setVerticalBias(textViewIds[i], 0.3f)
+                else setVerticalBias(textViewIds[i], 0.05f)
+                applyTo(questionLayout)
+            }
+        }
     }
 
     private fun checkAnswer() {
         println(chosenAnswer[questionNum - 1])
         if (questionNum > 30) println(dataList[questionNum - 1].answer)
-        if (chosenAnswer[questionNum - 1] == dataList[questionNum - 1].answer) correct.set(questionNum - 1)
+        if (chosenAnswer[questionNum - 1] == dataList[questionNum - 1].answer) correct.set(
+            questionNum - 1
+        )
         else correct.clear(questionNum - 1)
     }
 
     private fun getNextQuestionOptions(i: Int) {
         val nextQuestion = dataList[i]
         question.text = nextQuestion.question
-        isClicked1=false;isClicked2=false;isClicked3=false;isClicked4=false
+        isClicked1 = false;isClicked2 = false;isClicked3 = false;isClicked4 = false
         options[0].setOnClickListener {
             changeState(options[0], isClicked1)
             isClicked1 = !isClicked1; isClicked2 = false; isClicked3 = false; isClicked4 = false
@@ -112,9 +158,7 @@ class SecondActivity : AppCompatActivity() {
                 if (isClicked4) chosenAnswer[questionNum] = "г"
                 else chosenAnswer[questionNum] = ""
             }
-        }
-        else if(questionNum<70)
-        {
+        } else if (questionNum < 70) {
             options[0].text = "да"
             options[1].text = "не"
         }
@@ -166,6 +210,7 @@ class SecondActivity : AppCompatActivity() {
 //        secondEditText = findViewById(R.id.SecondEditText)
 //        thirdTextView = findViewById(R.id.ThirdTextView)
         textResult = findViewById(R.id.textView)
+        questionLayout = findViewById(R.id.questionLayout)
         blankQuestionsPage = findViewById(R.id.questionPage)
         set1Data = readGroup1(this, "set1.csv")
         set2Data = readGroup1(this, "set2.csv")
@@ -231,8 +276,8 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun showResult() {
-        textResult.text = "Result: "+correct.cardinality()+"/70"
-        textResult.visibility=TextView.VISIBLE
+        textResult.text = "Result: " + correct.cardinality() + "/70"
+        textResult.visibility = TextView.VISIBLE
         fourOptions()
         questionNum = 0
         showQuestion()
@@ -274,6 +319,7 @@ class SecondActivity : AppCompatActivity() {
             newTest()
         }
     }
+
     private fun showQuestionOptions(flag: Boolean = false) {
         if (questionNum == 50 && flag) chosenAnswer[questionNum - 1] =
             firstEditText.text.toString() + ", " + secondEditText.text.toString()
@@ -284,17 +330,23 @@ class SecondActivity : AppCompatActivity() {
         else changeState(options[0], true)
         getNextQuestionOptions(questionNum)
     }
+
     private fun showQuestionBlanks() {
 
         if (questionNum != 30) chosenAnswer[questionNum - 1] =
             firstEditText.text.toString() + ", " + secondEditText.text.toString()
         getNextQuestionOptionsBlanks(dataList[questionNum].question)
-        if(chosenAnswer[questionNum]!="")firstEditText.setText(chosenAnswer[questionNum].split(", ")[0])
-        if(chosenAnswer[questionNum].split(", ").size>1)secondEditText.setText(chosenAnswer[questionNum].split(", ")[1])
+        if (chosenAnswer[questionNum] != "") firstEditText.setText(chosenAnswer[questionNum].split(", ")[0])
+        if (chosenAnswer[questionNum].split(", ").size > 1) secondEditText.setText(
+            chosenAnswer[questionNum].split(
+                ", "
+            )[1]
+        )
     }
+
     private fun newTest() {
-        textResult.visibility=TextView.INVISIBLE
-        for(option in options)
+        textResult.visibility = TextView.INVISIBLE
+        for (option in options)
             option.setBackgroundResource(R.drawable.rectangle_button)
         correct.clear()
         chosenAnswer = Array(70) { "" }
@@ -319,16 +371,16 @@ class SecondActivity : AppCompatActivity() {
         }
         prevButton.setOnClickListener {
             questionNum--;
-            if(questionNum == 0)prevButton.visibility = Button.INVISIBLE
+            if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
             if (questionNum == 29) fourOptions()
             if (questionNum == 49) blankQuestions()
             if (questionNum == 68) {
                 nextButton.visibility = Button.VISIBLE
                 finishButton.visibility = Button.INVISIBLE
             }
-            if (questionNum < 30)showQuestionOptions()
+            if (questionNum < 30) showQuestionOptions()
             else if (questionNum < 50) showQuestionBlanks()
-            else if (questionNum < 70)showQuestionOptions()
+            else if (questionNum < 70) showQuestionOptions()
         }
         finishButton.setOnClickListener {
             questionNum++;
