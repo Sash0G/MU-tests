@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.application") version "8.1.1" // AGP version downgraded here
-    id("org.jetbrains.kotlin.android") // Make sure to include Kotlin version
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
