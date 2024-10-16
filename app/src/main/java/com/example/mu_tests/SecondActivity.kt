@@ -62,11 +62,17 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var set3Data: List<DataFormat>
     private lateinit var set4Data: List<DataFormat>
     private val textViewIds = mutableListOf<Int>()
+    private var textViewWidth = 0
     private val textViewIds2 = mutableListOf<Int>()
     private fun getNextQuestionOptionsBlanks(questionText: String) {
         for (id in textViewIds) {
             questionLayout.removeView(findViewById(id))
         }
+        for (id in textViewIds2) {
+            questionLayout.removeView(findViewById(id))
+        }
+        textViewIds.clear()
+        textViewIds2.clear()
         val parts = questionText.split('_')
         val textPaint = TextView(this).paint
         val availableWidth = questionLayout.width.toFloat() - 150
@@ -85,11 +91,24 @@ class SecondActivity : AppCompatActivity() {
                 text = textToShow
                 id = View.generateViewId()
                 textSize = 16f
-                if (remainingText.isNotEmpty()) width = availableWidth.toInt() + 150
+                if (remainingText.isNotEmpty()) {
+                    width = availableWidth.toInt() + 150
+
+                }
 //                gravity = Gravity.START
                 setTextColor(Color.BLACK)
                 background = resources.getDrawable(R.drawable.test)
             }
+            val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            val heightMeasureSpec =
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+
+// Now manually measure the TextView
+            textView.measure(widthMeasureSpec, heightMeasureSpec)
+
+// Get the measured width and height
+            textViewWidth = textView.measuredWidth
+            println("TextView width: $textViewWidth")
             questionLayout.addView(textView)
             textViewIds.add(textView.id)
         }
@@ -130,34 +149,87 @@ class SecondActivity : AppCompatActivity() {
                 applyTo(questionLayout)
             }
         }
+        var f = false
         val constraintSet2 = ConstraintSet().apply {
             clone(questionLayout)
             connect(firstEditText.id, ConstraintSet.END, questionLayout.id, ConstraintSet.END)
             connect(firstEditText.id, ConstraintSet.BOTTOM, questionLayout.id, ConstraintSet.BOTTOM)
-            connect(
-                firstEditText.id,
-                ConstraintSet.START,
-                textViewIds[textViewIds.size - 1],
-                ConstraintSet.END,
-            )
-            setHorizontalBias(firstEditText.id, 0.01f)
-            if (textViewIds.size > 1) {
+            if ((textViewWidth + firstEditText.width)*0.9 <= availableWidth) {
+                if (textViewIds.size >= 1) connect(
+                    firstEditText.id,
+                    ConstraintSet.START,
+                    textViewIds[textViewIds.size - 1],
+                    ConstraintSet.END,
+                )
+                else connect(
+                    firstEditText.id,
+                    ConstraintSet.START,
+                    questionLayout.id,
+                    ConstraintSet.START
+                )
+                if (textViewIds.size > 1) {
+                    connect(
+                        firstEditText.id,
+                        ConstraintSet.TOP,
+                        textViewIds[textViewIds.size - 2],
+                        ConstraintSet.BOTTOM
+                    )
+                    setVerticalBias(firstEditText.id, 0.0f)
+                } else {
+                    connect(
+                        firstEditText.id,
+                        ConstraintSet.TOP,
+                        questionLayout.id,
+                        ConstraintSet.TOP
+                    )
+                    setVerticalBias(firstEditText.id, 0.1f)
+                }
+                setHorizontalBias(firstEditText.id, 0.01f)
+            }
+            else {
                 connect(
                     firstEditText.id,
+                    ConstraintSet.START,
+                    questionLayout.id,
+                    ConstraintSet.START,
+                )
+                if(textViewIds.size >= 1) {connect(
+                    firstEditText.id,
                     ConstraintSet.TOP,
-                    textViewIds[textViewIds.size - 2],
+                    textViewIds[textViewIds.size - 1],
                     ConstraintSet.BOTTOM
                 )
-                setVerticalBias(firstEditText.id, 0.0f)
-            } else {
-                connect(
-                    firstEditText.id,
-                    ConstraintSet.TOP,
-                    questionLayout.id,
-                    ConstraintSet.TOP
-                )
-                setVerticalBias(firstEditText.id, 0.1f)
+                setVerticalBias(firstEditText.id, 0.0f)}
+                else {
+                    connect(
+                        firstEditText.id,
+                        ConstraintSet.TOP,
+                        questionLayout.id,
+                        ConstraintSet.TOP)
+                    setVerticalBias(firstEditText.id, 0.1f)
+                }
+                setHorizontalBias(firstEditText.id, 0f)
+                f = true
             }
+
+//
+//            if (textViewIds.size > 1) {
+//                connect(
+//                    firstEditText.id,
+//                    ConstraintSet.TOP,
+//                    textViewIds[textViewIds.size - 2],
+//                    ConstraintSet.BOTTOM
+//                )
+//                setVerticalBias(firstEditText.id, 0.0f)
+//            } else if (textViewIds.size == 1) {
+//                connect(
+//                    firstEditText.id,
+//                    ConstraintSet.TOP,
+//                    questionLayout.id,
+//                    ConstraintSet.TOP
+//                )
+//                setVerticalBias(firstEditText.id, 0.3f)
+//            }
 
 
 //            constrainHeight(firstEditText.id, ConstraintSet.MATCH_CONSTRAINT)
@@ -165,7 +237,7 @@ class SecondActivity : AppCompatActivity() {
             applyTo(questionLayout)
         }
         firstEditText.visibility = EditText.VISIBLE
-        var f = false
+
         firstEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 // Empty implementation (can be left as it is)
@@ -252,6 +324,102 @@ class SecondActivity : AppCompatActivity() {
                         applyTo(questionLayout)
                     }
                     f = false
+
+                }
+                for (id in textViewIds2) {
+                    questionLayout.removeView(findViewById(id))
+                }
+                textViewIds2.clear()
+                remainingText = parts[1]
+                var firstAvailableWidth =
+                    availableWidth - firstEditText.width - textViewWidth
+//        if (!f) firstAvailableWidth -=
+                println(remainingText)
+                br = 0
+                while (remainingText.isNotEmpty()) {
+
+                    println("This is the: " + remainingText)
+                    var ind = 0
+                    if (br != 0) ind =
+                        textPaint.breakText(remainingText, true, availableWidth, null)
+                    else ind = textPaint.breakText(remainingText, true, firstAvailableWidth, null)
+                    br++
+                    if (remainingText.lastIndexOf(' ', ind) != -1) ind =
+                        remainingText.lastIndexOf(' ', ind)
+                    val textToShow = remainingText.substring(0, ind)
+                    remainingText =
+                        if (ind + 1 < remainingText.length) remainingText.substring(ind + 1)
+                        else ""
+                    val textView = TextView(this@SecondActivity).apply {
+                        text = textToShow
+                        id = View.generateViewId()
+                        textSize = 16f
+                        setTextColor(Color.BLACK)
+                    }
+                    questionLayout.addView(textView)
+                    textViewIds2.add(textView.id)
+                }
+                for (i in textViewIds2.indices) {
+                    val constraintSet = ConstraintSet().apply {
+                        clone(questionLayout)
+                        connect(
+                            textViewIds2[i],
+                            ConstraintSet.END,
+                            questionLayout.id,
+                            ConstraintSet.END,
+                        )
+                        connect(
+                            textViewIds2[i],
+                            ConstraintSet.BOTTOM,
+                            questionLayout.id,
+                            ConstraintSet.BOTTOM
+                        )
+                        if (i != 0) {
+                            connect(
+                                textViewIds2[i],
+                                ConstraintSet.TOP,
+                                textViewIds2[i - 1],
+                                ConstraintSet.BOTTOM
+                            )
+                            connect(
+                                textViewIds2[i],
+                                ConstraintSet.START,
+                                questionLayout.id,
+                                ConstraintSet.START
+                            )
+                        } else {
+                            if (!f && textViewIds.size > 1) connect(
+                                textViewIds2[i],
+                                ConstraintSet.TOP,
+                                textViewIds[textViewIds.size - 2],
+                                ConstraintSet.BOTTOM
+                            )
+                            else if (!f) {
+                                connect(
+                                    textViewIds2[i],
+                                    ConstraintSet.TOP,
+                                    questionLayout.id,
+                                    ConstraintSet.TOP
+                                )
+                            } else {
+                                connect(
+                                    textViewIds2[i],
+                                    ConstraintSet.TOP,
+                                    textViewIds[textViewIds.size - 1],
+                                    ConstraintSet.BOTTOM
+                                )
+                            }
+                            connect(
+                                textViewIds2[i],
+                                ConstraintSet.START,
+                                firstEditText.id,
+                                ConstraintSet.END
+                            )
+                        }
+                        setVerticalBias(textViewIds2[i], 0.0f)
+                        setHorizontalBias(textViewIds2[i], 0.0f)
+                        applyTo(questionLayout)
+                    }
                 }
             }
 
@@ -259,18 +427,21 @@ class SecondActivity : AppCompatActivity() {
                 // Your code here to handle the final text
             }
         })
-
+        println(firstEditText.width)
+        println(textViewWidth)
         remainingText = parts[1]
-        var firstAvailableWidth = availableWidth - firstEditText.width
-        if (!f) firstAvailableWidth -= findViewById<TextView>(textViewIds[textViewIds.size - 1]).width
+        var firstAvailableWidth =
+            availableWidth - firstEditText.width - textViewWidth
+//        if (!f) firstAvailableWidth -=
         println(remainingText)
         br = 0
         while (remainingText.isNotEmpty()) {
-            br++
+
             println("This is the: " + remainingText)
             var ind = 0
             if (br != 0) ind = textPaint.breakText(remainingText, true, availableWidth, null)
             else ind = textPaint.breakText(remainingText, true, firstAvailableWidth, null)
+            br++
             if (remainingText.lastIndexOf(' ', ind) != -1) ind = remainingText.lastIndexOf(' ', ind)
             val textToShow = remainingText.substring(0, ind)
             remainingText = if (ind + 1 < remainingText.length) remainingText.substring(ind + 1)
@@ -280,6 +451,7 @@ class SecondActivity : AppCompatActivity() {
                 id = View.generateViewId()
                 textSize = 16f
                 setTextColor(Color.BLACK)
+                background = resources.getDrawable(R.drawable.test)
             }
             questionLayout.addView(textView)
             textViewIds2.add(textView.id)
@@ -299,12 +471,6 @@ class SecondActivity : AppCompatActivity() {
                     questionLayout.id,
                     ConstraintSet.BOTTOM
                 )
-                connect(
-                    textViewIds2[i],
-                    ConstraintSet.START,
-                    firstEditText.id,
-                    ConstraintSet.END
-                )
                 if (i != 0) {
                     connect(
                         textViewIds2[i],
@@ -312,22 +478,49 @@ class SecondActivity : AppCompatActivity() {
                         textViewIds2[i - 1],
                         ConstraintSet.BOTTOM
                     )
-                } else {
-                    if(!f)connect(
+                    connect(
                         textViewIds2[i],
-                        ConstraintSet.TOP,
-                        textViewIds[textViewIds.size - 2],
-                        ConstraintSet.BOTTOM
+                        ConstraintSet.START,
+                        questionLayout.id,
+                        ConstraintSet.START
                     )
-                    else{
+                    setVerticalBias(textViewIds2[i], 0.0f)
+                } else {
+                    if (!f && textViewIds.size > 1) {
                         connect(
                             textViewIds2[i],
                             ConstraintSet.TOP,
-                            textViewIds[textViewIds.size -1],
-                            ConstraintSet.BOTTOM)
+                            textViewIds[textViewIds.size - 2],
+                            ConstraintSet.BOTTOM
+
+                        )
+                        setVerticalBias(textViewIds2[i], 0.0f)
+                    } else if (!f) {
+                        connect(
+                            textViewIds2[i],
+                            ConstraintSet.TOP,
+                            questionLayout.id,
+                            ConstraintSet.TOP
+                        )
+
+                        setVerticalBias(textViewIds2[i], 0.1f)
+                    } else {
+                        connect(
+                            textViewIds2[i],
+                            ConstraintSet.TOP,
+                            textViewIds[textViewIds.size - 1],
+                            ConstraintSet.BOTTOM
+                        )
+                        setVerticalBias(textViewIds2[i], 0.0f)
                     }
+                    connect(
+                        textViewIds2[i],
+                        ConstraintSet.START,
+                        firstEditText.id,
+                        ConstraintSet.END
+                    )
                 }
-                setVerticalBias(textViewIds2[i], 0.0f)
+
                 setHorizontalBias(textViewIds2[i], 0.0f)
                 applyTo(questionLayout)
             }
