@@ -332,8 +332,8 @@ class SecondActivity : AppCompatActivity() {
                 textViewIds2.clear()
                 remainingText = parts[1]
                 var firstAvailableWidth =
-                    availableWidth - firstEditText.width - textViewWidth
-//        if (!f) firstAvailableWidth -=
+                    availableWidth - firstEditText.width
+                if (!f) firstAvailableWidth -= textViewWidth
                 println(remainingText)
                 br = 0
                 while (remainingText.isNotEmpty()) {
@@ -360,6 +360,8 @@ class SecondActivity : AppCompatActivity() {
                     textViewIds2.add(textView.id)
                 }
                 for (i in textViewIds2.indices) {
+                    println(i)
+                    println(findViewById<TextView>(textViewIds2[i]).text)
                     val constraintSet = ConstraintSet().apply {
                         clone(questionLayout)
                         connect(
@@ -431,8 +433,8 @@ class SecondActivity : AppCompatActivity() {
         println(textViewWidth)
         remainingText = parts[1]
         var firstAvailableWidth =
-            availableWidth - firstEditText.width - textViewWidth
-//        if (!f) firstAvailableWidth -=
+            availableWidth - firstEditText.width
+        if (!f) firstAvailableWidth -= textViewWidth
         println(remainingText)
         br = 0
         while (remainingText.isNotEmpty()) {
@@ -457,6 +459,8 @@ class SecondActivity : AppCompatActivity() {
             textViewIds2.add(textView.id)
         }
         for (i in textViewIds2.indices) {
+            println(i)
+            println(findViewById<TextView>(textViewIds2[i]).text)
             val constraintSet = ConstraintSet().apply {
                 clone(questionLayout)
                 connect(
