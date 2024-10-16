@@ -377,6 +377,7 @@ class SecondActivity : AppCompatActivity() {
                             ConstraintSet.BOTTOM
                         )
                         if (i != 0) {
+                            println("!!!!"+findViewById<TextView>(textViewIds2[i]).text)
                             connect(
                                 textViewIds2[i],
                                 ConstraintSet.TOP,
@@ -389,13 +390,15 @@ class SecondActivity : AppCompatActivity() {
                                 questionLayout.id,
                                 ConstraintSet.START
                             )
+                            setVerticalBias(textViewIds2[i], 0.0f)
                         } else {
-                            if (!f && textViewIds.size > 1) connect(
+                            if (!f && textViewIds.size > 1){ connect(
                                 textViewIds2[i],
                                 ConstraintSet.TOP,
                                 textViewIds[textViewIds.size - 2],
                                 ConstraintSet.BOTTOM
                             )
+                            setVerticalBias(textViewIds2[i], 0.0f)}
                             else if (!f) {
                                 connect(
                                     textViewIds2[i],
@@ -403,6 +406,7 @@ class SecondActivity : AppCompatActivity() {
                                     questionLayout.id,
                                     ConstraintSet.TOP
                                 )
+                                setVerticalBias(textViewIds2[i], 0.1f)
                             } else {
                                 connect(
                                     textViewIds2[i],
@@ -410,6 +414,7 @@ class SecondActivity : AppCompatActivity() {
                                     textViewIds[textViewIds.size - 1],
                                     ConstraintSet.BOTTOM
                                 )
+                                setVerticalBias(textViewIds2[i], 0.0f)
                             }
                             connect(
                                 textViewIds2[i],
@@ -417,9 +422,10 @@ class SecondActivity : AppCompatActivity() {
                                 firstEditText.id,
                                 ConstraintSet.END
                             )
+
                         }
-                        setVerticalBias(textViewIds2[i], 0.0f)
                         setHorizontalBias(textViewIds2[i], 0.0f)
+
                         applyTo(questionLayout)
                     }
                 }
