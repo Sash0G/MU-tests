@@ -555,7 +555,7 @@ class SecondActivity : AppCompatActivity() {
                         textViewIds[textViewIds.size-2],
                         ConstraintSet.TOP
                     )
-                    setVerticalBias(secondEditText.id, 0.1f)
+                    setVerticalBias(secondEditText.id, 0f)
                 }
                 setHorizontalBias(secondEditText.id, 0.01f)
             }
