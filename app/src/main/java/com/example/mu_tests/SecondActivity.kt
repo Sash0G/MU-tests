@@ -28,6 +28,7 @@ import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import java.util.BitSet
 import androidx.constraintlayout.widget.ConstraintSet
+import java.util.Objects
 import java.util.Vector
 
 class SecondActivity : AppCompatActivity() {
@@ -86,6 +87,53 @@ class SecondActivity : AppCompatActivity() {
     var leftId = 0
     var availableWidth = 0.0f
     var t = false
+    private var firstEditTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            firstEditText.imeOptions = EditorInfo.IME_ACTION_NEXT
+            firstEditText.inputType = InputType.TYPE_CLASS_TEXT
+//            firstEditText.requestFocus()
+            getNextQuestionOptionsBlanks(dataList[questionNum].question)
+            chosenAnswer[questionNum] =
+                firstEditText.text.toString() + ", " + secondEditText.text.toString()
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+
+    }
+    private var secondEditTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            secondEditText.imeOptions = EditorInfo.IME_ACTION_GO
+            secondEditText.inputType = InputType.TYPE_CLASS_TEXT
+//            secondEditText.requestFocus()
+            getNextQuestionOptionsBlanks(dataList[questionNum].question)
+            chosenAnswer[questionNum] =
+                firstEditText.text.toString() + ", " + secondEditText.text.toString()
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+
+        }
+    }
+    private fun turnOnOff(flag:Boolean){
+        if(flag)
+        {
+            firstEditText.addTextChangedListener(firstEditTextWatcher)
+            secondEditText.addTextChangedListener(secondEditTextWatcher)
+        }
+        else
+        {
+            firstEditText.removeTextChangedListener(firstEditTextWatcher)
+            secondEditText.removeTextChangedListener(secondEditTextWatcher)
+        }
+    }
+
     private fun clearPrev() {
         for (id in textViewIds) {
             questionLayout.removeView(findViewById(id))
@@ -153,7 +201,7 @@ class SecondActivity : AppCompatActivity() {
         return textViewId
     }
 
-    private fun setConstrainEditText(editText: EditText) {
+    private fun setConstraintEditText(editText: EditText) {
         println("!!" + textViewWidth1)
         println(textViewWidth2)
         val constraintSet3 = ConstraintSet().apply {
@@ -238,9 +286,10 @@ class SecondActivity : AppCompatActivity() {
         }
     }
 
-    private fun getNextQuestionOptionsBlanks(questionText: String) {
+    private fun getNextQuestionOptionsBlanks(questionText: String, first: Boolean = false) {
         clearPrev()
         println(questionText)
+        if(first)firstEditText.requestFocus()
         val parts =
             (" $questionText ").split(
                 '_'
@@ -250,7 +299,7 @@ class SecondActivity : AppCompatActivity() {
         textViewIds = splitText(parts[0])
         textViewWidth1 = textViewWidth
         setConstraintTextView(textViewIds)
-        setConstrainEditText(firstEditText)
+        setConstraintEditText(firstEditText)
         textViewWidth1 += firstEditText.width
         var whichRow = curr
         leftId = firstEditText.id
@@ -259,7 +308,7 @@ class SecondActivity : AppCompatActivity() {
         startOrEnd = ConstraintSet.END
         setConstraintTextView(textViewIds2)
         if (whichRow < curr - 1) textViewWidth1 = 0
-        setConstrainEditText(secondEditText)
+        setConstraintEditText(secondEditText)
         textViewWidth2 += secondEditText.width
         leftId = secondEditText.id
         var br = 0
@@ -276,7 +325,10 @@ class SecondActivity : AppCompatActivity() {
             questionNumK
         )
         else correct.clear(questionNumK)
-        if (chosenAnswer[questionNumK] == "" || (questionNumK in 39..59 && chosenAnswer[questionNumK].split(", ").size < 2)) {
+        if (chosenAnswer[questionNumK] == "" || (questionNumK in 39..59 && chosenAnswer[questionNumK].split(
+                ", "
+            ).size < 2)
+        ) {
             used.clear(questionNumK)
             findViewById<Button>((questionNumK + 1) * 1337).setBackgroundResource(R.drawable.rectangle_button)
         } else {
@@ -385,42 +437,7 @@ class SecondActivity : AppCompatActivity() {
             findViewById(R.id.ThirdChoice),
             findViewById(R.id.FourthChoice)
         )
-        firstEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {if(t){firstEditText.imeOptions = EditorInfo.IME_ACTION_NEXT
-                firstEditText.inputType = InputType.TYPE_CLASS_TEXT
-                firstEditText.requestFocus()
-                getNextQuestionOptionsBlanks(dataList[questionNum].question)
-                chosenAnswer[questionNum] =
-                    firstEditText.text.toString() + ", " + secondEditText.text.toString()}
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-        })
-        secondEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                println(t)
-                println(s)
-                println("----------")
-                if(t){secondEditText.imeOptions = EditorInfo.IME_ACTION_GO
-                secondEditText.inputType = InputType.TYPE_CLASS_TEXT
-                secondEditText.requestFocus()
-                getNextQuestionOptionsBlanks(dataList[questionNum].question)
-                chosenAnswer[questionNum] =
-                    firstEditText.text.toString() + ", " + secondEditText.text.toString()}
-                }
-
-            override fun afterTextChanged(s: Editable?) {
-
-            }
-        })
+        turnOnOff(true)
     }
 
     private fun blankQuestions() {
@@ -571,13 +588,20 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun showQuestionBlanks(questionNumK: Int = questionNum) {
-        t = false
-        if(chosenAnswer[questionNum] != "" || chosenAnswer[questionNum] != ", ")firstEditText.setText(chosenAnswer[questionNum].split(", ")[0])
+        turnOnOff(false)
+        if (chosenAnswer[questionNum] != "" || chosenAnswer[questionNum] != ", ") firstEditText.setText(
+            chosenAnswer[questionNum].split(", ")[0]
+        )
         else firstEditText.setText("")
-        if(chosenAnswer[questionNum].split(", ").size>1)secondEditText.setText(chosenAnswer[questionNum].split(", ")[1])
+        turnOnOff(true)
+        if (chosenAnswer[questionNum].split(", ").size > 1) secondEditText.setText(
+            chosenAnswer[questionNum].split(
+                ", "
+            )[1]
+        )
         else secondEditText.setText("")
-        t = true
-        getNextQuestionOptionsBlanks(dataList[questionNum].question)
+        getNextQuestionOptionsBlanks(dataList[questionNum].question,true)
+
     }
 
     private fun newTest() {
@@ -641,7 +665,7 @@ class SecondActivity : AppCompatActivity() {
             if (flag == 0) {
                 findViewById<Button>(i * 1337).setBackgroundResource(R.drawable.rectangle_button)
                 button.setOnClickListener {
-                    val oldnum=questionNum
+                    val oldnum = questionNum
                     if (questionNum != 0) checkAnswer(questionNum)
                     questionNum = i - 1;
                     if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
@@ -656,9 +680,9 @@ class SecondActivity : AppCompatActivity() {
                         nextButton.visibility = Button.INVISIBLE
                         finishButton.visibility = Button.VISIBLE
                     }
-                    if (questionNum < 40) showQuestionOptions(false,oldnum)
+                    if (questionNum < 40) showQuestionOptions(false, oldnum)
                     else if (questionNum < 60) showQuestionBlanks(oldnum)
-                    else if (questionNum < 80) showQuestionOptions(false,oldnum)
+                    else if (questionNum < 80) showQuestionOptions(false, oldnum)
                 }
             } else {
                 if (chosenAnswer[i - 1] != dataList[i - 1].answer) findViewById<Button>(i * 1337).setBackgroundResource(
