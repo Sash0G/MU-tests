@@ -317,7 +317,7 @@ class SecondActivity : AppCompatActivity() {
         setConstraintTextView(textViewIds3)
     }
 
-    private fun checkAnswer(questionNumK: Int = questionNum - 1) {
+    private fun checkAnswer(questionNumK: Int = questionNum) {
         println(chosenAnswer[questionNumK])
 
         if (questionNumK > 39) println(dataList[questionNumK].answer)
@@ -630,8 +630,9 @@ class SecondActivity : AppCompatActivity() {
                 nextButton.visibility = Button.INVISIBLE
                 finishButton.visibility = Button.VISIBLE
             }
-            questionNum++;
             checkAnswer()
+            questionNum++;
+
             if (questionNum < 40) showQuestionOptions()
             else if (questionNum < 60) showQuestionBlanks()
             else if (questionNum < 80) showQuestionOptions(true)
