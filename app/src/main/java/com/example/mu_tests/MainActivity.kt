@@ -15,10 +15,26 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val button = findViewById<Button>(R.id.button1)
+        val button2 = findViewById<Button>(R.id.button2)
+        var layoutParams = button.layoutParams
+        layoutParams.height =(0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        layoutParams.width =(0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        button.layoutParams = layoutParams
+        layoutParams = button2.layoutParams
+        layoutParams.height =(0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        layoutParams.width =(0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        button2.layoutParams = layoutParams
+
+        button2.setOnClickListener {
+
+        }
         button.setOnClickListener {
             // Create an Intent to open SecondActivity
             val intent = Intent(this, SecondActivity::class.java)
             startActivity(intent)  // Open the new window
         }
+
+
+
         }
     }
