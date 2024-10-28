@@ -26,12 +26,12 @@ class MainActivity : AppCompatActivity() {
         button2.layoutParams = layoutParams
 
         button2.setOnClickListener {
-
+            val intent = Intent(this, ThirdActivity::class.java)
+            startActivity(intent)
         }
         button.setOnClickListener {
-            // Create an Intent to open SecondActivity
             val intent = Intent(this, SecondActivity::class.java)
-            startActivity(intent)  // Open the new window
+            startActivity(intent)
         }
 
 

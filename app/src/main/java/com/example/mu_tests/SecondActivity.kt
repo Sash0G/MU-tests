@@ -4,16 +4,15 @@ import android.graphics.Color
 import android.graphics.Color.GREEN
 import android.graphics.Color.RED
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.text.Editable
 import android.text.InputType
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
-import android.util.Log
-import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.TextView
@@ -25,10 +24,14 @@ import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import java.util.BitSet
 import androidx.constraintlayout.widget.ConstraintSet
-import java.util.Objects
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.parcelize.Parcelize
+import java.io.File
 import java.util.Vector
 
 class SecondActivity : AppCompatActivity() {
@@ -39,11 +42,8 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var prevButton: Button
     private lateinit var finishButton: Button
     private lateinit var startOverButton: Button
-    private lateinit var firstTextView: TextView
     private lateinit var firstEditText: EditText
-    private lateinit var secondTextView: TextView
     private lateinit var secondEditText: EditText
-    private lateinit var thirdTextView: TextView
     private lateinit var textResult: TextView
     private lateinit var questionLayout: ConstraintLayout
     private val correct = BitSet(80)
@@ -55,7 +55,9 @@ class SecondActivity : AppCompatActivity() {
     private var isClicked4 = false
     private var chosenAnswer = Array(80) { "" }
     private val map = mapOf("а" to 0, "б" to 1, "в" to 2, "г" to 3, "да" to 0, "не" to 1)
+    private val randomNum = 1000000007
 
+    @Parcelize
     data class DataFormat(
         val question: String,
         val option1: String,
@@ -63,8 +65,14 @@ class SecondActivity : AppCompatActivity() {
         val option3: String,
         val option4: String,
         val answer: String
-    )
+    ) : Parcelable
 
+    @Parcelize
+    data class MyData(
+        val questions: List<DataFormat>,
+        val answers: Array<String>,
+        val result: Int
+    ) : Parcelable
 
     private lateinit var dataList: List<DataFormat>
     private lateinit var set1Data: List<DataFormat>
@@ -87,6 +95,39 @@ class SecondActivity : AppCompatActivity() {
     var leftId = 0
     var availableWidth = 0.0f
     var t = false
+    val locations = mutableListOf<Array<Int>>()
+
+    private var backPressedTime: Long = 0
+    private val backPressThreshold = 2000
+
+    override fun onBackPressed() {
+        val currentTime = System.currentTimeMillis()
+
+        if (currentTime - backPressedTime < backPressThreshold) {
+            super.onBackPressed()
+        } else {
+            backPressedTime = currentTime
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun saveToMyTests() {
+        val data = MyData(
+            questions = dataList,
+            answers = chosenAnswer,
+            result = correct.cardinality()
+        )
+        val file = File(this.filesDir, "data.json")
+        val testList: MutableList<MyData>
+        val gson = Gson()
+        if (file.exists()) {
+            val fileContent = file.readText()
+            testList = gson.fromJson(fileContent, object : TypeToken<MutableList<MyData>>() {}.type)
+        } else testList = mutableListOf()
+        testList.add(data)
+        file.writeText(gson.toJson(testList))
+    }
+
     private var firstEditTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
         }
@@ -94,10 +135,7 @@ class SecondActivity : AppCompatActivity() {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             firstEditText.imeOptions = EditorInfo.IME_ACTION_NEXT
             firstEditText.inputType = InputType.TYPE_CLASS_TEXT
-//            firstEditText.requestFocus()
             getNextQuestionOptionsBlanks(dataList[questionNum].question)
-            chosenAnswer[questionNum] =
-                firstEditText.text.toString() + ", " + secondEditText.text.toString()
         }
 
         override fun afterTextChanged(s: Editable?) {
@@ -113,22 +151,18 @@ class SecondActivity : AppCompatActivity() {
             secondEditText.inputType = InputType.TYPE_CLASS_TEXT
 //            secondEditText.requestFocus()
             getNextQuestionOptionsBlanks(dataList[questionNum].question)
-            chosenAnswer[questionNum] =
-                firstEditText.text.toString() + ", " + secondEditText.text.toString()
         }
 
         override fun afterTextChanged(s: Editable?) {
 
         }
     }
-    private fun turnOnOff(flag:Boolean){
-        if(flag)
-        {
+
+    private fun turnOnOff(flag: Boolean) {
+        if (flag) {
             firstEditText.addTextChangedListener(firstEditTextWatcher)
             secondEditText.addTextChangedListener(secondEditTextWatcher)
-        }
-        else
-        {
+        } else {
             firstEditText.removeTextChangedListener(firstEditTextWatcher)
             secondEditText.removeTextChangedListener(secondEditTextWatcher)
         }
@@ -173,11 +207,12 @@ class SecondActivity : AppCompatActivity() {
             else textPaint.breakText(remainingText, true, firstAvailableWidth, null)
             br++
             println("$ind !! $remainingText")
-            if (ind + 1 < remainingText.length && remainingText[ind + 1] != ' ') if (remainingText.lastIndexOf(
+            if (ind + 1 < remainingText.length && remainingText[ind] != ' ') if (remainingText.lastIndexOf(
                     ' ',
                     ind
                 ) != -1
             ) ind = remainingText.lastIndexOf(' ', ind)
+            println(remainingText.lastIndexOf(' ', ind))
             println(ind)
             var textToShow = remainingText.substring(0, ind)
             remainingText = if (ind + 1 < remainingText.length) remainingText.substring(ind)
@@ -204,7 +239,7 @@ class SecondActivity : AppCompatActivity() {
     private fun setConstraintEditText(editText: EditText) {
         println("!!" + textViewWidth1)
         println(textViewWidth2)
-        val constraintSet3 = ConstraintSet().apply {
+        ConstraintSet().apply {
             clone(questionLayout)
             connect(editText.id, ConstraintSet.END, questionLayout.id, ConstraintSet.END)
             connect(
@@ -245,7 +280,16 @@ class SecondActivity : AppCompatActivity() {
         for (i in Ids.indices) {
             println(i)
             println(findViewById<TextView>(Ids[i]).text)
-            val constraintSet = ConstraintSet().apply {
+            if (findViewById<TextView>(Ids[i]).text.isNotEmpty() && leftId != questionLayout.id && findViewById<TextView>(
+                    Ids[i]
+                ).text[0] != '.' && findViewById<TextView>(Ids[i]).text[0] != ',' && findViewById<TextView>(
+                    Ids[i]
+                ).text[0] != ')'
+            ) {
+                findViewById<TextView>(Ids[i]).text =
+                    " " + findViewById<TextView>(Ids[i]).text.toString()
+            }
+            ConstraintSet().apply {
                 clone(questionLayout)
                 connect(
                     Ids[i],
@@ -289,7 +333,7 @@ class SecondActivity : AppCompatActivity() {
     private fun getNextQuestionOptionsBlanks(questionText: String, first: Boolean = false) {
         clearPrev()
         println(questionText)
-        if(first)firstEditText.requestFocus()
+        if (first) firstEditText.requestFocus()
         val parts =
             (" $questionText ").split(
                 '_'
@@ -301,7 +345,7 @@ class SecondActivity : AppCompatActivity() {
         setConstraintTextView(textViewIds)
         setConstraintEditText(firstEditText)
         textViewWidth1 += firstEditText.width
-        var whichRow = curr
+        val whichRow = curr
         leftId = firstEditText.id
         textViewIds2 = splitText(parts[1])
         textViewWidth2 = textViewWidth
@@ -311,13 +355,16 @@ class SecondActivity : AppCompatActivity() {
         setConstraintEditText(secondEditText)
         textViewWidth2 += secondEditText.width
         leftId = secondEditText.id
-        var br = 0
         textViewIds3 = splitText(parts[2].dropLast(1))
         startOrEnd = ConstraintSet.END
         setConstraintTextView(textViewIds3)
+        for (i in 0 until questionLayout.childCount) {
+            val view = questionLayout.getChildAt(i)
+            println("View at index $i: ${view.javaClass.simpleName}, ${findViewById<TextView>(view.id).text} ID: ${view.id}")
+        }
     }
 
-    private fun checkAnswer(questionNumK: Int = questionNum) {
+    private fun checkAnswer(questionNumK: Int = questionNum - 1) {
         println(chosenAnswer[questionNumK])
 
         if (questionNumK > 39) println(dataList[questionNumK].answer)
@@ -325,15 +372,22 @@ class SecondActivity : AppCompatActivity() {
             questionNumK
         )
         else correct.clear(questionNumK)
-        if (chosenAnswer[questionNumK] == "" || (questionNumK in 39..59 && chosenAnswer[questionNumK].split(
+        println(
+            chosenAnswer[questionNumK].split(
                 ", "
-            ).size < 2)
+            ) + "---------------"
+        )
+        if (chosenAnswer[questionNumK] == "" || (questionNumK in 40..59 && (chosenAnswer[questionNumK].split(
+                ", "
+            ).size < 2 || chosenAnswer[questionNumK].split(", ")[0] == "" || chosenAnswer[questionNumK].split(
+                ", "
+            )[1] == ""))
         ) {
             used.clear(questionNumK)
-            findViewById<Button>((questionNumK + 1) * 1337).setBackgroundResource(R.drawable.rectangle_button)
+            findViewById<Button>((questionNumK + 1) * randomNum).setBackgroundResource(R.drawable.rectangle_button)
         } else {
             used.set(questionNumK)
-            findViewById<Button>((questionNumK + 1) * 1337).setBackgroundResource(R.drawable.rectangle_button_clicked)
+            findViewById<Button>((questionNumK + 1) * randomNum).setBackgroundResource(R.drawable.rectangle_button_clicked)
         }
     }
 
@@ -395,9 +449,7 @@ class SecondActivity : AppCompatActivity() {
             options[1].text = dataList[questionNum].option2
             options[2].text = dataList[questionNum].option3
             options[3].text = dataList[questionNum].option4
-        } else if (questionNum < 60) {
-
-        } else if (questionNum < 80) {
+        } else if (questionNum in 60..79) {
             question.text = dataList[questionNum].question
             options[0].text = "да"
             options[1].text = "не"
@@ -414,17 +466,14 @@ class SecondActivity : AppCompatActivity() {
         ) + set4Data.subList(0, 20)
     }
 
-    private fun initialize() {
+    private fun initialise() {
         question = findViewById(R.id.questionMain)
         nextButton = findViewById(R.id.next)
         prevButton = findViewById(R.id.prev)
         finishButton = findViewById(R.id.finish)
         startOverButton = findViewById(R.id.startOver)
-//        firstTextView = findViewById(R.id.FirstTextView)
         firstEditText = findViewById(R.id.firstEditText)
-//        secondTextView = findViewById(R.id.SecondTextView)
         secondEditText = findViewById(R.id.secondEditText)
-//        thirdTextView = findViewById(R.id.ThirdTextView)
         textResult = findViewById(R.id.textView)
         questionLayout = findViewById(R.id.questionBackground2)
         set1Data = readGroup1(this, "set1.csv")
@@ -504,7 +553,7 @@ class SecondActivity : AppCompatActivity() {
             parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + "(" + dataList[questionNum].answer.split(
                 ", "
             )[0] + ")" + parts[1] + chosenAnswer[questionNum].split(", ")[1] + parts[2].dropLast(1)
-        var spannableString = SpannableString(textC)
+        val spannableString = SpannableString(textC)
         for (i in 0..1) {
             var word = ""
             if (chosenAnswer[questionNum] != "" && chosenAnswer[questionNum] != ", " && chosenAnswer[questionNum].split(
@@ -532,10 +581,9 @@ class SecondActivity : AppCompatActivity() {
         question.text = spannableString
     }
 
-    private fun showResult() {
-        setNavBar(1)
-        findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(0, 0)
-        textResult.text = "Result: " + correct.cardinality() + "/80"
+    private fun showResult(result: Int = correct.cardinality(),flag: Boolean = false) {
+        setNavBar(1,flag)
+        textResult.text = "Result: " + result + "/80"
         textResult.visibility = TextView.VISIBLE
         fourOptions()
         questionNum = 0
@@ -547,9 +595,13 @@ class SecondActivity : AppCompatActivity() {
             if (questionNum == 59) twoOptions()
             if (questionNum == 78) {
                 nextButton.visibility = Button.INVISIBLE
-                startOverButton.visibility = Button.VISIBLE
+                if(!flag)startOverButton.visibility = Button.VISIBLE
             }
             questionNum++
+            findViewById<HorizontalScrollView>(R.id.scrollView).scrollTo(
+                locations[questionNum][0],
+                locations[questionNum][1]
+            )
             showQuestion()
             if (questionNum < 40) showAnswerOptions()
             else if (questionNum < 60) showAnswerBlanks()
@@ -558,12 +610,16 @@ class SecondActivity : AppCompatActivity() {
         }
         prevButton.setOnClickListener {
             questionNum--;
+            findViewById<HorizontalScrollView>(R.id.scrollView).scrollTo(
+                locations[questionNum][0],
+                locations[questionNum][1]
+            )
             if (questionNum == 0) prevButton.visibility = Button.VISIBLE
             if (questionNum == 39) fourOptions()
             if (questionNum == 69) blankQuestions()
             if (questionNum == 78) {
-                nextButton.visibility = Button.INVISIBLE
-                startOverButton.visibility = Button.VISIBLE
+                nextButton.visibility = Button.VISIBLE
+                startOverButton.visibility = Button.INVISIBLE
             }
             showQuestion()
             if (questionNum < 40) showAnswerOptions()
@@ -574,12 +630,13 @@ class SecondActivity : AppCompatActivity() {
             startOverButton.visibility = Button.INVISIBLE
             nextButton.visibility = Button.VISIBLE
             prevButton.visibility = Button.INVISIBLE
-
             newTest()
         }
     }
 
-    private fun showQuestionOptions(flag: Boolean = false, questionNumK: Int = questionNum) {
+    private fun showQuestionOptions(questionNumK: Int = questionNum - 1) {
+        if (questionNumK in 40..59) chosenAnswer[questionNumK] =
+            firstEditText.text.toString() + ", " + secondEditText.text.toString()
         if (chosenAnswer[questionNum] != "") changeState(
             options[map[chosenAnswer[questionNum]]!!], false
         )
@@ -587,25 +644,29 @@ class SecondActivity : AppCompatActivity() {
         getNextQuestionOptions(questionNum)
     }
 
-    private fun showQuestionBlanks(questionNumK: Int = questionNum) {
+    private fun showQuestionBlanks(questionNumK: Int = questionNum - 1) {
+        if (questionNumK in 40..59) chosenAnswer[questionNumK] =
+            firstEditText.text.toString() + ", " + secondEditText.text.toString()
         turnOnOff(false)
         if (chosenAnswer[questionNum] != "" || chosenAnswer[questionNum] != ", ") firstEditText.setText(
             chosenAnswer[questionNum].split(", ")[0]
         )
         else firstEditText.setText("")
-        turnOnOff(true)
+
         if (chosenAnswer[questionNum].split(", ").size > 1) secondEditText.setText(
             chosenAnswer[questionNum].split(
                 ", "
             )[1]
         )
         else secondEditText.setText("")
-        getNextQuestionOptionsBlanks(dataList[questionNum].question,true)
+        turnOnOff(true)
+        getNextQuestionOptionsBlanks(dataList[questionNum].question, true)
 
     }
 
     private fun newTest() {
         setNavBar(0)
+        turnOnOff(true)
         textResult.visibility = TextView.INVISIBLE
         for (option in options) option.setBackgroundResource(R.drawable.rectangle_button)
         correct.clear()
@@ -615,14 +676,7 @@ class SecondActivity : AppCompatActivity() {
         questionNum = 0
         getNextQuestionOptions(questionNum)
         nextButton.setOnClickListener {
-            val location = IntArray(2)
-            findViewById<Button>((questionNum + 1) * 1337).getLocationOnScreen(location)
-            val scrollViewLocation = IntArray(2)
-            findViewById<HorizontalScrollView>(R.id.scrollView).getLocationOnScreen(
-                scrollViewLocation
-            )
-            val relativeX = location[0] - scrollViewLocation[0]
-            findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(relativeX, 0)
+            println(locations.size)
             if (questionNum == 0) prevButton.visibility = Button.VISIBLE
             if (questionNum == 39) blankQuestions()
             if (questionNum == 59) twoOptions()
@@ -630,17 +684,23 @@ class SecondActivity : AppCompatActivity() {
                 nextButton.visibility = Button.INVISIBLE
                 finishButton.visibility = Button.VISIBLE
             }
-            checkAnswer()
             questionNum++;
-
+            findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(
+                locations[questionNum][0],
+                locations[questionNum][1]
+            )
             if (questionNum < 40) showQuestionOptions()
             else if (questionNum < 60) showQuestionBlanks()
-            else if (questionNum < 80) showQuestionOptions(true)
+            else if (questionNum < 80) showQuestionOptions()
+            checkAnswer()
 
         }
         prevButton.setOnClickListener {
-            checkAnswer()
             questionNum--;
+            findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(
+                locations[questionNum][0],
+                locations[questionNum][1]
+            )
             if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
             if (questionNum == 39) fourOptions()
             if (questionNum == 59) blankQuestions()
@@ -648,27 +708,47 @@ class SecondActivity : AppCompatActivity() {
                 nextButton.visibility = Button.VISIBLE
                 finishButton.visibility = Button.INVISIBLE
             }
-            if (questionNum < 40) showQuestionOptions()
-            else if (questionNum < 60) showQuestionBlanks()
-            else if (questionNum < 80) showQuestionOptions()
+            if (questionNum < 40) showQuestionOptions(questionNum + 1)
+            else if (questionNum < 60) showQuestionBlanks(questionNum + 1)
+            else if (questionNum < 80) showQuestionOptions(questionNum + 1)
+            checkAnswer(questionNum + 1)
         }
         finishButton.setOnClickListener {
             questionNum++;
             checkAnswer()
-            showResult()
+            if (used.cardinality() == 80) {
+                saveToMyTests()
+                showResult()
+            } else {
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Confirmation")
+                builder.setMessage("You haven't answered all questions. Are you sure you want to finish the test?")
+                builder.setPositiveButton("Yes") { dialog, which ->
+                    saveToMyTests()
+                    showResult()
+                }
+                builder.setNegativeButton("No") { dialog, which ->
+                    questionNum--
+                }
+                val dialog = builder.create()
+                dialog.show()
+            }
         }
     }
 
-    private fun setNavBar(flag: Int) {
-
+    private fun setNavBar(flag: Int, showOldTest : Boolean = false) {
+        findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(0, 0)
         for (i in 1..80) {
-            val button = findViewById<Button>(i * 1337)
+            val button = findViewById<Button>(i * randomNum)
             if (flag == 0) {
-                findViewById<Button>(i * 1337).setBackgroundResource(R.drawable.rectangle_button)
+                findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button)
                 button.setOnClickListener {
-                    val oldnum = questionNum
-                    if (questionNum != 0) checkAnswer(questionNum)
+                    val oldNum = questionNum
                     questionNum = i - 1;
+                    findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(
+                        locations[questionNum][0],
+                        locations[questionNum][1]
+                    )
                     if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
                     else prevButton.visibility = Button.VISIBLE
                     if (questionNum <= 39) fourOptions()
@@ -681,18 +761,23 @@ class SecondActivity : AppCompatActivity() {
                         nextButton.visibility = Button.INVISIBLE
                         finishButton.visibility = Button.VISIBLE
                     }
-                    if (questionNum < 40) showQuestionOptions(false, oldnum)
-                    else if (questionNum < 60) showQuestionBlanks(oldnum)
-                    else if (questionNum < 80) showQuestionOptions(false, oldnum)
+                    if (questionNum < 40) showQuestionOptions(oldNum)
+                    else if (questionNum < 60) showQuestionBlanks(oldNum)
+                    else if (questionNum < 80) showQuestionOptions(oldNum)
+                    checkAnswer(oldNum)
                 }
             } else {
-                if (chosenAnswer[i - 1] != dataList[i - 1].answer) findViewById<Button>(i * 1337).setBackgroundResource(
+                if (chosenAnswer[i - 1] != dataList[i - 1].answer) findViewById<Button>(i * randomNum).setBackgroundResource(
                     R.drawable.rectangle_button_wrong
                 )
-                else findViewById<Button>(i * 1337).setBackgroundResource(R.drawable.rectangle_button_correct)
+                else findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button_correct)
                 button.setOnClickListener {
 
                     questionNum = i - 1;
+                    findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(
+                        locations[questionNum][0],
+                        locations[questionNum][1]
+                    )
                     if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
                     else prevButton.visibility = Button.VISIBLE
                     if (questionNum <= 39) fourOptions()
@@ -703,7 +788,7 @@ class SecondActivity : AppCompatActivity() {
                         startOverButton.visibility = Button.INVISIBLE
                     } else {
                         nextButton.visibility = Button.INVISIBLE
-                        startOverButton.visibility = Button.VISIBLE
+                        if(!showOldTest)startOverButton.visibility = Button.VISIBLE
                     }
                     if (questionNum < 40) showAnswerOptions()
                     else if (questionNum < 60) showAnswerBlanks()
@@ -711,7 +796,14 @@ class SecondActivity : AppCompatActivity() {
                     showQuestion()
                 }
             }
+            findViewById<HorizontalScrollView>(R.id.scrollView).post {
+                val location = IntArray(2)
+                button.getLocationOnScreen(location)
+                println("${location[0]} +${location[1]}")
+                locations.add(arrayOf(location[0], location[1]))
+            }
         }
+        println(locations.size)
     }
 
     private fun addButtons() {
@@ -738,7 +830,7 @@ class SecondActivity : AppCompatActivity() {
             layoutParams.setMargins(10, 0, 10, 0)
             button.layoutParams = layoutParams
             button.text = "$i"
-            button.id = i * 1337 // Give each button a unique ID
+            button.id = i * randomNum // Give each button a unique ID
             button.setBackgroundResource(R.drawable.rectangle_button)
             linearLayout.addView(button)
         }
@@ -754,8 +846,15 @@ class SecondActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        initialize()
+        val data = intent.getParcelableExtra<MyData>("test")
+
+        initialise()
         addButtons()
-        newTest()
+        if (data == null) newTest()
+        else {
+            dataList = data.questions
+            chosenAnswer = data.answers
+            showResult(data.result,true)
+        }
     }
 }
