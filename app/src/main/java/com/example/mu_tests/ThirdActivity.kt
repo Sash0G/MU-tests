@@ -93,6 +93,7 @@ class ThirdActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@ThirdActivity, LinearLayoutManager.VERTICAL, false)
             adapter = buttonAdapter
         }
+        println(testList.size)
         println(generateButtonList())
 
     }
@@ -102,19 +103,7 @@ class ThirdActivity : AppCompatActivity() {
 
     private fun showSelectionModeActions() {
         // Show an alert to confirm actions on selected items
-        val alertDialog = AlertDialog.Builder(this)
-            .setTitle("Selection Mode")
-            .setMessage("Do you want to perform an action on selected buttons?")
-            .setPositiveButton("Yes") { _, _ ->
-                performSelectedAction()
-                buttonAdapter.exitSelectionMode()
-            }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-                buttonAdapter.exitSelectionMode()
-            }
-            .create()
-        alertDialog.show()
+
     }
 
     private fun performSelectedAction() {

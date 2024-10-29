@@ -45,6 +45,8 @@ class ButtonAdapter(
             if (!isSelectionMode) {
                 isSelectionMode = true
                 onSelectionModeChanged(true)
+                holder.checkBox.isChecked = true
+                selectedItems.add(position)
                 notifyDataSetChanged()
             }
             true
@@ -57,20 +59,26 @@ class ButtonAdapter(
             } else {
                 selectedItems.remove(position)
             }
+            if (selectedItems.size == 0) exitSelectionMode()
         }
         holder.button.text = "Result: ${activity.testList[position].result}/80"
         // Click button to toggle selection mode if it’s active
         holder.button.setOnClickListener {
-            val intent = Intent(context, SecondActivity::class.java)
-            intent.putExtra("test", activity.testList[position])
-            startActivity(context,intent,null)
+            if (isSelectionMode) {
+                // Toggle selection state when in selection mode
+                holder.checkBox.isChecked = !holder.checkBox.isChecked
+                if (holder.checkBox.isChecked) {
+                    selectedItems.add(position)
+                } else {
+                    selectedItems.remove(position)
+                }
+            } else {
+                val intent = Intent(context, SecondActivity::class.java)
+                intent.putExtra("test", activity.testList[position])
+                startActivity(context, intent, null)
+            }
         }
 
-        holder.button.setOnClickListener {
-            val intent = Intent(context, SecondActivity::class.java)
-            intent.putExtra("test", activity.testList[0])
-            context.startActivity(intent)
-        }
     }
 
     override fun getItemCount() = buttonList.size
