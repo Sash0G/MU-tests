@@ -23,8 +23,9 @@ import java.io.File
 class ThirdActivity : AppCompatActivity() {
     private val randomNum = 10000009
     private lateinit var scrollView: RecyclerView
+    lateinit var deleteButton: Button
     private lateinit var tests : MutableList<MyData>
-    public lateinit var testList: MutableList<MyData>
+    lateinit var testList: MutableList<MyData>
     private fun listOldTests() {
         val file = File(this.filesDir, "data.json")
 
@@ -70,7 +71,10 @@ class ThirdActivity : AppCompatActivity() {
 
     }
     private fun iniatilise() {
-
+        deleteButton = findViewById(R.id.deleteButton)
+        var layoutParams = deleteButton.layoutParams
+        layoutParams.width =layoutParams.height
+        deleteButton.layoutParams = layoutParams
     }
     private lateinit var buttonAdapter: ButtonAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,25 +90,25 @@ class ThirdActivity : AppCompatActivity() {
         listOldTests()
         val recyclerView: RecyclerView = findViewById(R.id.scrollView)
         buttonAdapter = ButtonAdapter(this,this, generateButtonList()) { isInSelectionMode ->
-            if (isInSelectionMode) showSelectionModeActions()
+            if (isInSelectionMode) deleteButton.visibility = View.VISIBLE
+            else deleteButton.visibility = View.INVISIBLE
         }
 
         recyclerView.apply {
             layoutManager = LinearLayoutManager(this@ThirdActivity, LinearLayoutManager.VERTICAL, false)
             adapter = buttonAdapter
         }
+        deleteButton.setOnClickListener {
+            buttonAdapter.deleteSelectedItems()
+        }
         println(testList.size)
         println(generateButtonList())
 
     }
-    private fun generateButtonList(): List<String> {
-        return List(5) { "Button ${it + 1}" }
+    private fun generateButtonList(): List<Int> {
+        return List(testList.size) { it }
     }
 
-    private fun showSelectionModeActions() {
-        // Show an alert to confirm actions on selected items
-
-    }
 
     private fun performSelectedAction() {
         val selectedItems = buttonAdapter.getSelectedItems()

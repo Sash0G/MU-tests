@@ -11,11 +11,13 @@ import com.example.mu_tests.MainActivity
 import com.example.mu_tests.R
 import com.example.mu_tests.SecondActivity
 import com.example.mu_tests.ThirdActivity
+import com.google.gson.Gson
+import java.io.File
 
 class ButtonAdapter(
     private val activity: ThirdActivity,
     private val context: Context,
-    private val buttonList: List<String>, // Example data for buttons
+    private var buttonList: List<Int>, // Example data for buttons
     private val onSelectionModeChanged: (Boolean) -> Unit // Callback to notify when selection mode changes
 ) : RecyclerView.Adapter<ButtonAdapter.ButtonViewHolder>() {
 
@@ -34,10 +36,9 @@ class ButtonAdapter(
     }
 
     override fun onBindViewHolder(holder: ButtonViewHolder, position: Int) {
-        holder.button.text = buttonList[position]
-
         // Show/hide checkbox based on selection mode
         holder.checkBox.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
+        holder.checkBox.setOnCheckedChangeListener(null)
         holder.checkBox.isChecked = selectedItems.contains(position)
 
         // Long press to enter selection mode
@@ -85,11 +86,24 @@ class ButtonAdapter(
 
     // Expose selected items for further actions
     fun getSelectedItems() = selectedItems.toList()
+    fun deleteSelectedItems() {
+        println(selectedItems)
+        val itemsToKeep = buttonList.filterIndexed { index, _ -> index !in selectedItems }
+        activity.testList = activity.testList.filterIndexed { index, _ -> index !in selectedItems }.toMutableList()
 
+        buttonList = itemsToKeep.toList() // assuming buttonList is a mutable list
+        val file = File(activity.filesDir, "data.json")
+        val gson = Gson()
+        file.writeText(gson.toJson(activity.testList))
+        selectedItems.clear() // Clear selection
+        exitSelectionMode() // Exit selection mode if needed
+        notifyDataSetChanged() // Refresh the RecyclerView
+    }
     // Exit selection mode and reset
     fun exitSelectionMode() {
         isSelectionMode = false
         selectedItems.clear()
+        activity.deleteButton.visibility = View.INVISIBLE
         notifyDataSetChanged()
     }
 }
