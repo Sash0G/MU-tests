@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: 'adoptium' # You can change this to your required Java version
+          distribution: 'openjdk' # You can change this to your required Java version
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v2
