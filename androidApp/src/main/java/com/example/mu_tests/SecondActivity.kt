@@ -37,7 +37,6 @@ import java.io.File
 import java.util.Vector
 
 class SecondActivity : AppCompatActivity() {
-
     private lateinit var options: List<Button>
     private lateinit var question: TextView
     private lateinit var nextButton: Button
