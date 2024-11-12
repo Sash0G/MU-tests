@@ -30,17 +30,6 @@ jobs:
 
       - name: Build APK
         run: ./gradlew assembleRelease
-
-      - name: Release Executable
-        uses: actions/upload-artifact@v4
-        with:
-          name: mu-tests
-          path: androidApp/build/outputs/apk/release/*.apk
-          
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-            name: mu-tests
             
       - name: Upload APK as Release Asset
         id: create-release
@@ -56,7 +45,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create-release.outputs.upload_url }}'
-          asset_path: ./mu-tests
+          asset_path: app/build/outputs/apk/release/*.apk
           asset_name: mu-tests
           asset_content_type: application/vnd.android.package-archive
           
