@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "326715790189",
+    "project_id": "mu-tests",
+    "storage_bucket": "mu-tests.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326715790189:android:0358a3d779e30bf9c14064",
+        "android_client_info": {
+          "package_name": "com.example.mu_tests"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCwUwC3QKbHQSDu4LY--NKwN1zy2RWPiU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
