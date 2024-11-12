@@ -67,7 +67,6 @@ class MainActivity : AppCompatActivity() {
         firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
         checkForUpdates()
 
-
         val button = findViewById<Button>(R.id.button1)
         val button2 = findViewById<Button>(R.id.button2)
         var layoutParams = button.layoutParams
