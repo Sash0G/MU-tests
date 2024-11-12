@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    if: startsWith(github.event.head_commit.message, 'v')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '17'
-          distribution: 'temurin' # You can change this to your required Java version
+          distribution: 'temurin'
           
       - name: Set execute permissions for gradlew
         run: chmod +x gradlew
@@ -29,14 +29,15 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build APK
-        run: ./gradlew assembleRelease  # Run Gradle to build the release APK
+        run: ./gradlew assembleRelease
 
       - name: Upload APK as Release Asset
-        uses: softprops/action-gh-release@v1
-        with:
-          files: app/build/outputs/apk/release/app-release.apk  # Path to the APK
+        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        with:
+          tag_name: '${{ github.event.head_commit.message }}'
+          release_name: Release_${{ github.event.head_commit.message }}
           
       - name: Clean up
-        run: ./gradlew clean  # Optional: Clean the project after build
+        run: ./gradlew clean
