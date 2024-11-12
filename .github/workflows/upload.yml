@@ -2,7 +2,10 @@ name: Build and Release APK
 
 on:
   push:
-
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,14 +33,24 @@ jobs:
 
       - name: Build APK
         run: ./gradlew assembleRelease
-
+        
       - name: Upload APK as Release Asset
+        id: create-release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           tag_name: '${{ github.event.head_commit.message }}'
           release_name: Release_${{ github.event.head_commit.message }}
+      - name: Upload release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        with:
+          upload_url: '${{ steps.create-release.outputs.upload_url }}'
+          asset_path: androidApp/build/outputs/apk/release/androidApp-release-unsigned.apk
+          asset_name: mu-tests
+          asset_content_type: application/vnd.android.package-archive
           
       - name: Clean up
         run: ./gradlew clean
