@@ -16,7 +16,8 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
-    private fun checkForUpdates(context: Context) {
+
+    private fun checkForUpdates() {
         firebaseRemoteConfig.fetchAndActivate()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -26,11 +27,12 @@ class MainActivity : AppCompatActivity() {
 
                     // Check if an update is needed
                     if (latestVersionCode > getCurrentVersionCode()) {
-                        showUpdateDialog(downloadUrl,context)
+                        showUpdateDialog(downloadUrl)
                     }
                 }
             }
     }
+
     private fun getCurrentVersionCode(): Int {
         return try {
             val pInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
@@ -41,27 +43,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showUpdateDialog(downloadUrl: String, context: Context) {
-        AlertDialog.Builder(context)
+    private fun showUpdateDialog(downloadUrl: String) {
+        AlertDialog.Builder(this)
             .setTitle("Update Available")
             .setMessage("A new version of the app is available. Please update to the latest version.")
             .setPositiveButton("Update") { _, _ ->
                 // Open the URL in a browser
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl))
-                ContextCompat.startActivity(context, intent, null)
+                startActivity(intent)
             }
             .setNegativeButton("Later", null)
             .show()
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
         enableEdgeToEdge()
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
         val configSettings = FirebaseRemoteConfigSettings.Builder()
             .setMinimumFetchIntervalInSeconds(3600)  // Adjust this for your needs
             .build()
         firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
-        setContentView(R.layout.activity_main)
+        checkForUpdates()
+
 
         val button = findViewById<Button>(R.id.button1)
         val button2 = findViewById<Button>(R.id.button2)
