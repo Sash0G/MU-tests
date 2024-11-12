@@ -48,7 +48,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           upload_url: '${{ steps.create-release.outputs.upload_url }}'
-          asset_path: androidApp/build/outputs/apk/release/ androidApp-release-unsigned.apk
+          asset_path: androidApp/build/outputs/apk/release/androidApp-release-unsigned.apk
           asset_name: mu-tests
           asset_content_type: application/vnd.android.package-archive
           
