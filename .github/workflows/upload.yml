@@ -33,7 +33,10 @@ jobs:
 
       - name: Build APK
         run: ./gradlew assembleRelease
-            
+      - name: List files in APK output directory
+        run: ls -l androidApp/build/outputs/apk/release/
+      - name: List files in APK output directory
+        run: ls -l androidApp/build/outputs/apk/debug/   
       - name: Upload APK as Release Asset
         id: create-release
         uses: actions/create-release@v1
