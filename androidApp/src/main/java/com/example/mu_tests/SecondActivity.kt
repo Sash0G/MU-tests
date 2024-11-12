@@ -6,7 +6,6 @@ import android.graphics.Color.RED
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.Parcel
 import android.os.Parcelable
 import android.text.Editable
 import android.text.InputType
