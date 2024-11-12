@@ -16,7 +16,10 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin' # You can change this to your required Java version
-
+          
+      - name: Set execute permissions for gradlew
+        run: chmod +x gradlew
+      
       - name: Cache Gradle dependencies
         uses: actions/cache@v2
         with:
