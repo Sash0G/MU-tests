@@ -32,12 +32,12 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleDebug
         
       - name: Upload APK as Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: androidApp/build/outputs/apk/release/androidApp-release-unsigned.apk
+          files: androidApp/build/outputs/apk/release/androidApp-debug.apk
           tag_name: '${{ github.event.head_commit.message }}'
           name: 'Release_${{ github.event.head_commit.message }}'
         env:
