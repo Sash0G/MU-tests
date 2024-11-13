@@ -22,10 +22,14 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // Fetch and activate succeeded
-                    val latestVersionCode = firebaseRemoteConfig.getLong("latest_version_code").toInt()
+                    val latestVersionCode = firebaseRemoteConfig.getString("latest_version_code")
                     val downloadUrl = firebaseRemoteConfig.getString("download_url")
 
                     // Check if an update is needed
+                    println("--------------------")
+                    println(latestVersionCode)
+                    println(getCurrentVersionCode())
+                    println("--------------------")
                     if (latestVersionCode > getCurrentVersionCode()) {
                         showUpdateDialog(downloadUrl)
                     }
@@ -33,13 +37,13 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun getCurrentVersionCode(): Int {
+    private fun getCurrentVersionCode(): String {
         return try {
             val pInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
-            pInfo.versionCode
+            pInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
-            -1
+            ""
         }
     }
 
