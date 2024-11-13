@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Update Available")
             .setMessage("A new version of the app is available. Please update to the latest version.")
             .setPositiveButton("Update") { _, _ ->
-                // Open the URL in a browser
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl))
                 startActivity(intent)
             }
