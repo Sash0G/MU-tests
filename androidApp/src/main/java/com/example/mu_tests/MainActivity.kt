@@ -21,11 +21,9 @@ class MainActivity : AppCompatActivity() {
         firebaseRemoteConfig.fetchAndActivate()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // Fetch and activate succeeded
                     val latestVersionCode = firebaseRemoteConfig.getString("latest_version_code")
                     val downloadUrl = firebaseRemoteConfig.getString("download_url")
 
-                    // Check if an update is needed
                     println("--------------------")
                     println(latestVersionCode)
                     println(getCurrentVersionCode())
