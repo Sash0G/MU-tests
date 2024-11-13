@@ -30,10 +30,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
+        
       - name: Build APK
         run: ./gradlew assembleDebug
-        
+      - name: List files in APK output directory
+        run: ls -l androidApp/build/outputs/apk/debug/
       - name: Upload APK as Release Asset
         uses: softprops/action-gh-release@v1
         with:
