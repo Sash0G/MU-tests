@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
         val configSettings = FirebaseRemoteConfigSettings.Builder()
-            .setMinimumFetchIntervalInSeconds(3600)  // Adjust this for your needs
+            .setMinimumFetchIntervalInSeconds(3600)
             .build()
         firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
         checkForUpdates()
