@@ -24,33 +24,24 @@ jobs:
         run: chmod +x gradlew
       
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
+        
       - name: Build APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleDebug
         
       - name: Upload APK as Release Asset
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        uses: softprops/action-gh-release@v1
         with:
+          files: androidApp/build/outputs/apk/debug/androidApp-debug.apk
           tag_name: '${{ github.event.head_commit.message }}'
-          release_name: Release_${{ github.event.head_commit.message }}
-      - name: Upload release
-        uses: actions/upload-release-asset@v1
+          name: 'Release_${{ github.event.head_commit.message }}'
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-        with:
-          upload_url: '${{ steps.create-release.outputs.upload_url }}'
-          asset_path: androidApp/build/outputs/apk/release/androidApp-release-unsigned.apk
-          asset_name: MU-tests.apk
-          asset_content_type: application/vnd.android.package-archive
           
       - name: Clean up
         run: ./gradlew clean
