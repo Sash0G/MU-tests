@@ -71,14 +71,6 @@ class MainActivity : AppCompatActivity() {
         firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
         checkForUpdates()
         // Kotlin
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword("user@example.com", "password")
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    println("User signed up successfully!")
-                } else {
-                    println("Error: ${task.exception?.message}")
-                }
-            }
 
         val button = findViewById<Button>(R.id.button1)
         val button2 = findViewById<Button>(R.id.button2)
