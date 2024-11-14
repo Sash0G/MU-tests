@@ -26,7 +26,7 @@ import java.io.File
 class ButtonAdapter(
     private val activity: ThirdActivity,
     private val context: Context,
-    private var buttonList: List<Int>, // Example data for buttons
+    private var buttonList: List<Int>,
     private val onSelectionModeChanged: (Boolean) -> Unit // Callback to notify when selection mode changes
 ) : RecyclerView.Adapter<ButtonAdapter.ButtonViewHolder>() {
 
