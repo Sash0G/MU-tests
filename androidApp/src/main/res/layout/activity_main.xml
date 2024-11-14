@@ -40,7 +40,9 @@
         app:layout_constraintVertical_bias="0.841"
         app:layout_constraintWidth_percent="0.4"
         />
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/signInMenu"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/rectangle_button"
@@ -52,9 +54,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1"
         android:elevation="2dp"
-        android:visibility="invisible">
+        android:visibility="invisible"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/userLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@drawable/rectangle_button"
@@ -83,6 +87,7 @@
                 app:layout_constraintWidth_percent="0.1" />
 
             <EditText
+                android:id="@+id/usernameInput"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
@@ -99,6 +104,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/emailLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@drawable/rectangle_button"
@@ -108,7 +114,7 @@
             app:layout_constraintHorizontal_bias="0.546"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.3"
+            app:layout_constraintVertical_bias="0.15"
             app:layout_constraintWidth_percent="0.8">
 
             <ImageView
@@ -126,6 +132,7 @@
                 app:layout_constraintWidth_percent="0.1" />
 
             <EditText
+                android:id="@+id/emailInput"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
@@ -142,6 +149,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/keyLayout"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@drawable/rectangle_button"
@@ -151,7 +159,7 @@
             app:layout_constraintHorizontal_bias="0.546"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.45"
+            app:layout_constraintVertical_bias="0.3"
             app:layout_constraintWidth_percent="0.8">
 
             <ImageView
@@ -169,6 +177,7 @@
                 app:layout_constraintWidth_percent="0.1" />
 
             <EditText
+                android:id="@+id/passwordInput"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:background="@android:color/transparent"
@@ -201,6 +210,7 @@
             app:layout_constraintWidth_percent="0.8" />
 
         <TextView
+            android:id="@+id/or"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"

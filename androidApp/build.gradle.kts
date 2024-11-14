@@ -14,13 +14,14 @@ android {
         applicationId = "com.example.mu_tests"
         minSdk = 24
         targetSdk = 34
-        versionCode = 5
-        versionName = "v1.0.5"
+        versionCode = 6
+        versionName = "v1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -48,8 +49,11 @@ dependencies {
     implementation (libs.gson)
     implementation (libs.androidx.recyclerview.v121)
     implementation(libs.firebase.config)
+    implementation(libs.play.services.measurement.api)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation (libs.firebase.auth)
+    implementation (libs.firebase.analytics.ktx)
+
 }
