@@ -45,6 +45,8 @@ jobs:
         run: |
           echo "Encoded keystore content:"
           base64 ~/.gradle/daemon/8.9/debug.keystore || echo "Failed to read keystore content"
+      - name: Set correct permissions on keystore
+        run: chmod 644 ~/.gradle/daemon/8.9/debug.keystore
       - name: Build APK
         run: |
             ./gradlew assembleDebug \
