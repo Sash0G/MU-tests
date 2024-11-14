@@ -42,6 +42,8 @@ jobs:
           fi
 
       - name: Decode keystore file
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         run: |
           mkdir -p ~/.android
           echo "$KEYSTORE_FILE" | base64 --decode > ~/.android/debug.keystore
