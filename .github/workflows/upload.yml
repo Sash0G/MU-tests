@@ -31,6 +31,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Check if KEYSTORE_FILE is set
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         run: |
           if [ -z "$KEYSTORE_FILE" ]; then
             echo "KEYSTORE_FILE is not set!"
