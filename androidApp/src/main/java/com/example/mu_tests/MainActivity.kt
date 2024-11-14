@@ -161,11 +161,13 @@ class MainActivity : AppCompatActivity() {
                 )
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        println("User signed in successfully!")
                         val user = task.result?.user
                         val profileUpdates = UserProfileChangeRequest.Builder()
                             .setDisplayName(usernameInput.text.toString()) // Set the desired username
                             .build()
                         user?.updateProfile(profileUpdates)
+                        layout.translationY = 0f
                         layout.animate()
                             .translationY(0.8f * resources.displayMetrics.heightPixels)
                             .alpha(0f)
@@ -184,10 +186,10 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         FirebaseApp.initializeApp(this)
         val analytics = FirebaseAnalytics.getInstance(this)
-        with(Bundle()) {
+        val bundle = Bundle().apply {
             putString("Splash", "test")
-            analytics.logEvent("Splash", this)
         }
+        analytics.logEvent("Splash", bundle)
         initialize()
 
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
@@ -223,6 +225,6 @@ class MainActivity : AppCompatActivity() {
         if (user == null) {
             signIn()
         }
-
+        analytics.setUserProperty("displayName", user?.displayName)
     }
 }

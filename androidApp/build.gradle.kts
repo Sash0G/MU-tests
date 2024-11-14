@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
     alias(libs.plugins.google.gms.google.services)
-
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -14,8 +14,8 @@ android {
         applicationId = "com.example.mu_tests"
         minSdk = 24
         targetSdk = 34
-        versionCode = 6
-        versionName = "v1.0.6"
+        versionCode = 7
+        versionName = "v1.0.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,5 +55,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation (libs.firebase.auth)
     implementation (libs.firebase.analytics.ktx)
+    implementation(libs.firebase.crashlytics)
+    implementation(platform(libs.firebase.bom))
 
 }
