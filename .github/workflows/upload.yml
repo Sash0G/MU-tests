@@ -34,6 +34,7 @@ jobs:
         run: |
           mkdir -p ~/.android
           echo "$KEYSTORE_FILE" | base64 --decode > ~/.android/debug.keystore
+          run base64 ~/.android/debug.keystore
       - name: Build APK
         run: ./gradlew assembleDebug
         
