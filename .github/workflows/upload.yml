@@ -34,7 +34,7 @@ jobs:
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         run: |
-          mkdir ~/.gradle/daemon/8.9/debug.keystor
+          mkdir ~/.gradle/daemon/8.9
           echo "$KEYSTORE_FILE" | base64 --decode > debug.keystore
           if [ ! -s ~/.gradle/daemon/8.9/debug.keystor ]; then
             echo "Decoding failed, or the keystore file is empty."
@@ -44,7 +44,7 @@ jobs:
       - name: Verify keystore file content
         run: |
           echo "Encoded keystore content:"
-          base64 ~/.gradle/daemon/8.9/debug.keystor || echo "Failed to read keystore content"
+          base64 ~/.gradle/daemon/8.9/debug.keystore || echo "Failed to read keystore content"
       - name: Build APK
         run: |
             ./gradlew assembleDebug \
