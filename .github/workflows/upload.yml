@@ -30,23 +30,14 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Check if KEYSTORE_FILE is set
-        env:
-          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
-        run: |
-          if [ -z "$KEYSTORE_FILE" ]; then
-            echo "KEYSTORE_FILE is not set!"
-            exit 1
-          else
-            echo "KEYSTORE_FILE is set."
-          fi
-
+            
       - name: Decode keystore file
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         run: |
+          mkdir ~/.gradle/daemon/8.9/debug.keystor
           echo "$KEYSTORE_FILE" | base64 --decode > debug.keystore
-          if [ ! -s ~/.android/debug.keystore ]; then
+          if [ ! -s ~/.gradle/daemon/8.9/debug.keystor ]; then
             echo "Decoding failed, or the keystore file is empty."
             exit 1
           fi
@@ -54,7 +45,7 @@ jobs:
       - name: Verify keystore file content
         run: |
           echo "Encoded keystore content:"
-          base64 ~/.android/debug.keystore || echo "Failed to read keystore content"
+          base64 ~/.gradle/daemon/8.9/debug.keystor || echo "Failed to read keystore content"
       - name: Build APK
         run: |
             ./gradlew assembleDebug \
