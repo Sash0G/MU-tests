@@ -51,9 +51,9 @@ jobs:
         run: |
             ./gradlew assembleDebug \
             -Pandroid.injected.signing.store.file=${HOME}/.android/debug.keystore \
-            -Pandroid.injected.signing.store.password=${{ secrets.DEBUG_STORE_PASSWORD }} \
-            -Pandroid.injected.signing.key.alias=${{ secrets.DEBUG_KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.DEBUG_KEY_PASSWORD }}
+            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
         
       - name: Upload APK as Release Asset
         uses: softprops/action-gh-release@v1
