@@ -1,5 +1,4 @@
 name: Build and Release APK
-
 on:
   push:
 permissions:
@@ -30,12 +29,31 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+            
       - name: Decode keystore file
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         run: |
           mkdir -p ~/.android
-          echo "$KEYSTORE_FILE" | base64 --decode > ~/.android/debug.keystore
+          echo "$KEYSTORE_FILE" | base64 --decode >  ~/.android/debug.keystore
+          if [ ! -s ~/.android/debug.keystore ]; then
+            echo "Decoding failed, or the keystore file is empty."
+            exit 1
+          fi
+
+      - name: Verify keystore file content
+        run: |
+          echo "Encoded keystore content:"
+          base64 ~/android/debug.keystore || echo "Failed to read keystore content"
+      - name: Set correct permissions on keystore
+        run: chmod 644 ~/.android/debug.keystore
       - name: Build APK
-        run: ./gradlew assembleDebug
+        run: |
+            ./gradlew assembleDebug \
+            -Pandroid.injected.signing.store.file=${HOME}/.android/debug.keystore \
+            -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+            -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+            -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
         
       - name: Upload APK as Release Asset
         uses: softprops/action-gh-release@v1
