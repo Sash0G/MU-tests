@@ -49,7 +49,7 @@ jobs:
         run: chmod 644 ~/.android/debug.keystore
       - name: Build APK
         run: |
-            ./gradlew assembleDebug --stacktrace --info \
+            ./gradlew assembleDebug \
             -Pandroid.injected.signing.store.file=~/.android/debug.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.DEBUG_STORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.DEBUG_KEY_ALIAS }} \
