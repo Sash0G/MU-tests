@@ -34,9 +34,9 @@ jobs:
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
         run: |
-          mkdir -p ~/.gradle/daemon/8.9
-          echo "$KEYSTORE_FILE" | base64 --decode >  ~/.gradle/daemon/8.9/debug.keystore
-          if [ ! -s ~/.gradle/daemon/8.9/debug.keystore ]; then
+          mkdir -p ~/.android
+          echo "$KEYSTORE_FILE" | base64 --decode >  ~/.android/debug.keystore
+          if [ ! -s ~/android/debug.keystore ]; then
             echo "Decoding failed, or the keystore file is empty."
             exit 1
           fi
@@ -44,13 +44,13 @@ jobs:
       - name: Verify keystore file content
         run: |
           echo "Encoded keystore content:"
-          base64 ~/.gradle/daemon/8.9/debug.keystore || echo "Failed to read keystore content"
+          base64 ~/android/debug.keystore || echo "Failed to read keystore content"
       - name: Set correct permissions on keystore
-        run: chmod 644 ~/.gradle/daemon/8.9/debug.keystore
+        run: chmod 644 ~/.android/debug.keystore
       - name: Build APK
         run: |
             ./gradlew assembleDebug --stacktrace --info \
-            -Pandroid.injected.signing.store.file=debug.keystore \
+            -Pandroid.injected.signing.store.file=~/.android/debug.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.DEBUG_STORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.DEBUG_KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.DEBUG_KEY_PASSWORD }}
