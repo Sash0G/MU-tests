@@ -137,8 +137,8 @@ class SecondActivity : AppCompatActivity() {
         object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                editText.imeOptions = imeOptions
-                editText.inputType = InputType.TYPE_CLASS_TEXT
+//                editText.imeOptions = imeOptions
+//                editText.inputType = InputType.TYPE_CLASS_TEXT
                 runnable?.let { handler.removeCallbacks(it) }
                 runnable = Runnable {
                     if (firstEditText.width != lastFirstWidth || secondEditText.width != lastSecondWidth) {
@@ -518,6 +518,10 @@ class SecondActivity : AppCompatActivity() {
             findViewById(R.id.ThirdChoice),
             findViewById(R.id.FourthChoice)
         )
+        firstEditText.imeOptions = EditorInfo.IME_ACTION_NEXT
+        firstEditText.inputType = InputType.TYPE_CLASS_TEXT
+        secondEditText.imeOptions = EditorInfo.IME_ACTION_GO
+        secondEditText.inputType = InputType.TYPE_CLASS_TEXT
         turnOnOff(true)
     }
 
