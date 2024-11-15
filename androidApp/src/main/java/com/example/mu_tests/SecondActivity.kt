@@ -13,6 +13,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
@@ -29,6 +30,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import java.util.BitSet
 import androidx.constraintlayout.widget.ConstraintSet
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.parcelize.Parcelize
@@ -390,6 +392,13 @@ class SecondActivity : AppCompatActivity() {
     private fun getNextQuestionOptions(i: Int) {
         val nextQuestion = dataList[i]
         question.text = nextQuestion.question
+        question.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM)
+        question.setAutoSizeTextTypeUniformWithConfiguration(
+            6,  // Min text size (in sp)
+            18,  // Max text size (in sp)
+            1,   // Granularity of the text size change
+            TypedValue.COMPLEX_UNIT_SP
+        )
         isClicked1 = false;isClicked2 = false;isClicked3 = false;isClicked4 = false
         options[0].setOnClickListener {
             changeState(options[0], isClicked1)
@@ -410,6 +419,16 @@ class SecondActivity : AppCompatActivity() {
             options[1].text = nextQuestion.option2
             options[2].text = nextQuestion.option3
             options[3].text = nextQuestion.option4
+            for(option in options) {
+                option.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM)
+                option.setAutoSizeTextTypeUniformWithConfiguration(
+                    6,  // Min text size (in sp)
+                    14,  // Max text size (in sp)
+                    1,   // Granularity of the text size change
+                    TypedValue.COMPLEX_UNIT_SP
+                )
+            }
+
             isClicked1 = false; isClicked2 = false; isClicked3 = false; isClicked4 = false
 
             if (questionNum < 40) options[2].setOnClickListener {
@@ -664,6 +683,7 @@ class SecondActivity : AppCompatActivity() {
         lastFirstWidth = 0
         lastSecondWidth = 0
         turnOnOff(true)
+        FirebaseCrashlytics.getInstance().log(dataList[questionNum].question)
         getNextQuestionOptionsBlanks(dataList[questionNum].question, true)
 
     }

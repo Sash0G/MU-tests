@@ -35,41 +35,21 @@ class ThirdActivity : AppCompatActivity() {
         {
             val fileContent = file.readText()
             testList =  gson.fromJson(fileContent, object : TypeToken<MutableList<MyData>>() {}.type)
+            val recyclerView: RecyclerView = findViewById(R.id.scrollView)
+            buttonAdapter = ButtonAdapter(this,this, generateButtonList()) { isInSelectionMode ->
+                if (isInSelectionMode) deleteButton.visibility = View.VISIBLE
+                else deleteButton.visibility = View.INVISIBLE
+            }
+            val gridLayoutManager = GridLayoutManager(this, 2)
+            recyclerView.apply {
+                layoutManager = gridLayoutManager
+                adapter = buttonAdapter
+            }
+            deleteButton.setOnClickListener {
+                buttonAdapter.deleteSelectedItems()
+            }
         }
         else return
-//        scrollView.isHorizontalFadingEdgeEnabled = true
-//        scrollView.setFadingEdgeLength(50)
-//        val displayMetrics = resources.displayMetrics
-//        val screenWidth = displayMetrics.widthPixels
-//        val screenHeight = displayMetrics.heightPixels
-//        val buttonWidthPercent = 0.9f
-//        val buttonHeightPercent = 0.08f
-//
-//        val buttonWidth = (screenWidth * buttonWidthPercent).toInt()
-//        val buttonHeight = (screenHeight * buttonHeightPercent).toInt()
-//        var br = 1
-//        for (test in testList) {
-//            val button = Button(this)
-//            val layoutParams = LinearLayout.LayoutParams(
-//                buttonWidth, buttonHeight
-//            )
-//            layoutParams.setMargins(0, 20, 0, 20)
-//            button.layoutParams = layoutParams
-//            button.id = br*randomNum
-//            br++
-//            button.text = "Result: ${test.result}/80"
-//            button.textSize = 16f
-//            button.textAlignment = Button.TEXT_ALIGNMENT_CENTER
-//            button.setTextColor(resources.getColor(R.color.black))
-//            button.setOnClickListener {
-//                val intent = Intent(this, SecondActivity::class.java)
-//                intent.putExtra("test", test)
-//                startActivity(intent)
-//            }
-//            button.setBackgroundResource(R.drawable.rectangle_button)
-//            scrollView.addView(button)
-//        }
-
     }
     private fun iniatilise() {
         deleteButton = findViewById(R.id.deleteButton)
@@ -89,22 +69,6 @@ class ThirdActivity : AppCompatActivity() {
         }
         iniatilise()
         listOldTests()
-        val recyclerView: RecyclerView = findViewById(R.id.scrollView)
-        buttonAdapter = ButtonAdapter(this,this, generateButtonList()) { isInSelectionMode ->
-            if (isInSelectionMode) deleteButton.visibility = View.VISIBLE
-            else deleteButton.visibility = View.INVISIBLE
-        }
-        val gridLayoutManager = GridLayoutManager(this, 2)
-        recyclerView.apply {
-            layoutManager = gridLayoutManager
-            adapter = buttonAdapter
-        }
-        deleteButton.setOnClickListener {
-            buttonAdapter.deleteSelectedItems()
-        }
-        println(testList.size)
-        println(generateButtonList())
-
     }
     private fun generateButtonList(): List<Int> {
         return List(testList.size) { it }
