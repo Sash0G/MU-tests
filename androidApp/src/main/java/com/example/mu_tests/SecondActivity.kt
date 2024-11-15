@@ -341,6 +341,7 @@ class SecondActivity : AppCompatActivity() {
             )
         startOrEnd = ConstraintSet.START
         topOrBottom= ConstraintSet.TOP
+        leftId= questionLayout.id
         topId.add(questionLayout.id)
         textViewIds = splitText(parts[0].drop(1))
         setConstraintTextView(textViewIds)
@@ -604,6 +605,7 @@ class SecondActivity : AppCompatActivity() {
             ) word = chosenAnswer[questionNum].split(", ")[i]
             if (word == "") continue
             val startIndex = textC.indexOf(word)
+            if(startIndex==-1)continue
             val endIndex = startIndex + word.length
             if (chosenAnswer[questionNum].split(", ")[i] == dataList[questionNum].answer.split(", ")[i]) spannableString.setSpan(
                 ForegroundColorSpan(GREEN),
