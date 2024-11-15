@@ -565,6 +565,7 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun showAnswerBlanks() {
+        FirebaseCrashlytics.getInstance().log(dataList[questionNum].question)
         question.visibility = TextView.VISIBLE
         questionLayout.visibility = LinearLayout.INVISIBLE
         var textC = " " + dataList[questionNum].question + " "
