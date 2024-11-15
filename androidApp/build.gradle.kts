@@ -58,5 +58,4 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.storage)
-
 }

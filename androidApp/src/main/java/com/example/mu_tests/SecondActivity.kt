@@ -464,6 +464,23 @@ class SecondActivity : AppCompatActivity() {
             options[1].text = dataList[questionNum].option2
             options[2].text = dataList[questionNum].option3
             options[3].text = dataList[questionNum].option4
+            question.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM)
+            question.setAutoSizeTextTypeUniformWithConfiguration(
+                6,  // Min text size (in sp)
+                18,  // Max text size (in sp)
+                1,   // Granularity of the text size change
+                TypedValue.COMPLEX_UNIT_SP
+            )
+            for(option in options)
+            {
+                option.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM)
+                option.setAutoSizeTextTypeUniformWithConfiguration(
+                    6,  // Min text size (in sp)
+                    14,  // Max text size (in sp)
+                    1,   // Granularity of the text size change
+                    TypedValue.COMPLEX_UNIT_SP
+                )
+            }
         } else if (questionNum in 60..79) {
             question.text = dataList[questionNum].question
             options[0].text = "да"
