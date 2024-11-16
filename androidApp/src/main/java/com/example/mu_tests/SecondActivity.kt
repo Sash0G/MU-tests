@@ -334,14 +334,13 @@ class SecondActivity : AppCompatActivity() {
         lastFirstWidth = firstEditText.width
         lastSecondWidth = secondEditText.width
         clearPrev()
-        if (first) firstEditText.requestFocus()
         val parts =
             (" $questionText ").split(
                 '_'
             )
         startOrEnd = ConstraintSet.START
         topOrBottom= ConstraintSet.TOP
-        leftId= questionLayout.id
+        leftId = questionLayout.id
         topId.add(questionLayout.id)
         textViewIds = splitText(parts[0].drop(1))
         setConstraintTextView(textViewIds)
@@ -350,7 +349,15 @@ class SecondActivity : AppCompatActivity() {
         textViewWidth1 += firstEditText.width
         val whichRow = curr
         leftId = firstEditText.id
-        textViewIds2 = splitText(parts[1])
+        try {
+            // Опитай се да разделиш текста и извикай splitText
+            textViewIds2 = splitText(parts[1])
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().apply {
+                log("Error processing parts: ${parts[0]}, - $questionText")
+                recordException(e)
+            }
+        }
         textViewWidth2 = textViewWidth
         startOrEnd = ConstraintSet.END
         setConstraintTextView(textViewIds2)
