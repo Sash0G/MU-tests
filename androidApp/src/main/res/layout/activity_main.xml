@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/font">
+    android:background="@drawable/font"
+    android:id="@+id/main">
 
 
     <androidx.appcompat.widget.AppCompatButton

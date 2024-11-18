@@ -84,7 +84,7 @@ class ButtonAdapter(
             if (selectedItems.size == 0) exitSelectionMode()
         }
 //        holder.button.text = "Result: ${activity.testList[position].result}/80"
-        holder.progressText.text = activity.testList[position].result.toString()+"/80"
+        holder.progressText.text = activity.testList[position].result.toString()+"/120"
         val progress = (activity.testList[position].result*0.0125f*100).toInt()
         holder.circularProgressBar.progress=progress
         if(progress<=35)holder.circularProgressBar.progressDrawable = ContextCompat.getDrawable(context, R.drawable.red_progress)
@@ -107,6 +107,7 @@ class ButtonAdapter(
                 activity.testList[position].questions.map { it.part = "NULL" }
                 intent.putExtra("test", activity.testList[position])
                 startActivity(context, intent, null)
+                activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             }
         }
 

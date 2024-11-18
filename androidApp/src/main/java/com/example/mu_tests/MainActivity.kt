@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.transition.Fade
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -82,9 +83,11 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Later", null)
             .show()
     }
+
+    private lateinit var buttonAdapter: PartButton
     private fun chooseParts() {
         val recyclerView: RecyclerView = findViewById(R.id.scrollView)
-        val buttonAdapter = PartButton(this,this, List(60) { it }) { isInSelectionMode ->
+        buttonAdapter = PartButton(this, this, List(60) { it }) { isInSelectionMode ->
         }
         val gridLayoutManager = GridLayoutManager(this, 3)
         recyclerView.apply {
@@ -95,21 +98,21 @@ class MainActivity : AppCompatActivity() {
         var isClicked2 = false
         firstBook = findViewById<Button>(R.id.firstBook)
         secondBook = findViewById<Button>(R.id.secondBook)
-        firstBook.setOnClickListener{
-            if(!isClicked1){
-                firstBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
+        firstBook.setOnClickListener {
+            if (!isClicked1) {
+                firstBook.background =
+                    ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
                 firstBook.setTextColor(ContextCompat.getColor(this, R.color.white))
                 buttonAdapter.add(false)
                 isClicked1 = true
-            }
-            else {
+            } else {
                 firstBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button)
                 firstBook.setTextColor(ContextCompat.getColor(this, R.color.black))
                 buttonAdapter.remove(false)
                 isClicked1 = false
             }
         }
-       secondBook.setOnClickListener{
+        secondBook.setOnClickListener {
 //            if(!isClicked2){
 //                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
 //                secondBook.setTextColor(ContextCompat.getColor(this, R.color.white))
@@ -124,18 +127,19 @@ class MainActivity : AppCompatActivity() {
 //            }
         }
         findViewById<Button>(R.id.start).setOnClickListener {
-            if(buttonAdapter.selectedItems.isNotEmpty()) {
+            if (buttonAdapter.selectedItems.isNotEmpty()) {
                 val parts = mutableListOf<String>()
                 println(buttonAdapter.selectedItems)
                 for (i in buttonAdapter.selectedItems) parts.add("Тема ${i + 1}")
                 val intent = Intent(this, SecondActivity::class.java)
                 intent.putStringArrayListExtra("parts", ArrayList(parts))
                 ContextCompat.startActivity(this, intent, null)
-
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             }
         }
 
     }
+
     private fun initialize() {
         button = findViewById<Button>(R.id.button1)
         button2 = findViewById<Button>(R.id.button2)
@@ -164,7 +168,8 @@ class MainActivity : AppCompatActivity() {
         button2.layoutParams = layoutParams
 
         button.setOnClickListener {
-            findViewById<ConstraintLayout>(R.id.constraintLayout).visibility = android.view.View.VISIBLE
+            findViewById<ConstraintLayout>(R.id.constraintLayout).visibility =
+                android.view.View.VISIBLE
             findViewById<BlurView>(R.id.blurView).visibility = android.view.View.VISIBLE
             chooseParts()
             button.visibility = android.view.View.INVISIBLE
@@ -173,6 +178,7 @@ class MainActivity : AppCompatActivity() {
         button2.setOnClickListener {
             val intent = Intent(this, ThirdActivity::class.java)
             startActivity(intent)
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
 
     }
@@ -266,6 +272,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val fade = Fade(Fade.IN)
+        window.enterTransition = fade
+        window.exitTransition = fade
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         enableEdgeToEdge()
@@ -295,5 +304,16 @@ class MainActivity : AppCompatActivity() {
         blurView.setupWith(decorView.findViewById(android.R.id.content))
             .setFrameClearDrawable(window.decorView.background) // Use RenderScript for the blur
             .setBlurRadius(3f) // Adjust the blur radius
+    }
+
+    override fun onBackPressed() {
+        if (findViewById<ConstraintLayout>(R.id.constraintLayout).visibility == android.view.View.VISIBLE) {
+            findViewById<ConstraintLayout>(R.id.constraintLayout).visibility =
+                android.view.View.INVISIBLE
+            findViewById<BlurView>(R.id.blurView).visibility = android.view.View.INVISIBLE
+            buttonAdapter.selectedItems.clear()
+            button.visibility = android.view.View.VISIBLE
+            button2.visibility = android.view.View.VISIBLE
+        } else super.onBackPressed()
     }
 }

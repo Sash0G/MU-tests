@@ -13,6 +13,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
+import android.transition.Fade
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -48,8 +49,8 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var secondEditText: EditText
     private lateinit var textResult: TextView
     private lateinit var questionLayout: ConstraintLayout
-    private val correct = BitSet(80)
-    private val used = BitSet(80)
+    private val correct = BitSet(160)
+    private val used = BitSet(160)
     private var questionNum = 0
     private var isClicked1 = false
     private var isClicked2 = false
@@ -74,7 +75,7 @@ class SecondActivity : AppCompatActivity() {
     data class MyData(
         val questions: List<DataFormat>,
         val answers: Array<String>,
-        val result: Int
+        var result: Int
     ) : Parcelable
 
     private lateinit var dataList: List<DataFormat>
@@ -105,12 +106,15 @@ class SecondActivity : AppCompatActivity() {
     private val backPressThreshold = 2000
     private val handler = Handler(Looper.getMainLooper())
     private var runnable: Runnable? = null
-    private var themes : ArrayList<String>? = null
+    private var themes: ArrayList<String>? = null
     override fun onBackPressed() {
         val currentTime = System.currentTimeMillis()
 
         if (currentTime - backPressedTime < backPressThreshold) {
+            finish()
             super.onBackPressed()
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
         } else {
             backPressedTime = currentTime
             Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
@@ -376,14 +380,23 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun checkAnswer(questionNumK: Int = questionNum - 1) {
-        println(chosenAnswer[questionNumK])
-
-        if (questionNumK > 39) println(dataList[questionNumK].answer)
-        if (chosenAnswer[questionNumK] == dataList[questionNumK].answer) correct.set(
-            questionNumK
-        )
-        else correct.clear(questionNumK)
-
+        if (chosenAnswer[questionNumK] != dataList[questionNumK].answer) {
+            correct.clear(questionNumK)
+            correct.clear(questionNumK + 80)
+        } else if (questionNumK < 20 || questionNumK > 59) correct.set(questionNumK)
+        else {
+            correct.set(questionNumK)
+            correct.set(questionNumK + 80)
+        }
+        if (chosenAnswer[questionNumK] != dataList[questionNumK].answer && questionNumK in 40..59) {
+            if (chosenAnswer[questionNumK].split(", ")[0] == dataList[questionNumK].answer.split(", ")[0]) {
+                correct.set(questionNumK)
+                correct.clear(questionNumK + 80)
+            } else if (chosenAnswer[questionNumK].split(", ")[1] == dataList[questionNumK].answer.split(", ")[1]) {
+                correct.clear(questionNumK)
+                correct.set(questionNumK + 80)
+            }
+        }
         if (chosenAnswer[questionNumK] == "" || (questionNumK in 40..59 && (chosenAnswer[questionNumK].split(
                 ", "
             ).size < 2 || chosenAnswer[questionNumK].split(", ")[0] == "" || chosenAnswer[questionNumK].split(
@@ -501,7 +514,9 @@ class SecondActivity : AppCompatActivity() {
         set2Data = set2Data.shuffled()
         set3Data = set3Data.shuffled()
         set4Data = set4Data.shuffled()
-        dataList = set1Data.filter { it.part in themes!! }.subList(0, 20) + set2Data.filter { it.part in themes!! }.subList(0, 20) + set3Data.filter { it.part in themes!! }.subList(
+        dataList = set1Data.filter { it.part in themes!! }
+            .subList(0, 20) + set2Data.filter { it.part in themes!! }
+            .subList(0, 20) + set3Data.filter { it.part in themes!! }.subList(
             0, 20
         ) + set4Data.filter { it.part in themes!! }.subList(0, 20)
     }
@@ -637,7 +652,7 @@ class SecondActivity : AppCompatActivity() {
 
     private fun showResult(result: Int = correct.cardinality(), flag: Boolean = false) {
         setNavBar(1, flag)
-        textResult.text = "Result: " + result + "/80"
+        textResult.text = "Result: " + result + "/120"
         textResult.visibility = TextView.VISIBLE
         fourOptions()
         questionNum = 0
@@ -895,6 +910,9 @@ class SecondActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val fade = Fade(Fade.IN)
+        window.enterTransition = fade
+        window.exitTransition = fade
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_second)
