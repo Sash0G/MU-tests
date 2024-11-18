@@ -23,6 +23,7 @@ fun readGroup1(context: Context, fileName: String): List<DataFormat> {
 
     var nextLine: Array<String>?
     while (reader.readNext().also { nextLine = it } != null) {
+        println(nextLine?.size)
         if (nextLine?.size == 7) {
             val row = DataFormat(
                 question = nextLine!![0],

@@ -104,6 +104,7 @@ class ButtonAdapter(
                 }
             } else {
                 val intent = Intent(context, SecondActivity::class.java)
+                activity.testList[position].questions.map { it.part = "NULL" }
                 intent.putExtra("test", activity.testList[position])
                 startActivity(context, intent, null)
             }

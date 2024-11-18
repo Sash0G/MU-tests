@@ -46,8 +46,7 @@ class PartButton(
             holder.button.background =
                 ContextCompat.getDrawable(context, R.drawable.rectangle_button_green)
             holder.button.setTextColor(Color.WHITE)
-        }
-        else {
+        } else {
             holder.button.background =
                 ContextCompat.getDrawable(context, R.drawable.rectangle_button)
             holder.button.setTextColor(Color.BLACK)
@@ -65,12 +64,30 @@ class PartButton(
                 holder.button.setTextColor(Color.BLACK)
                 selectedItems.remove(position)
             }
+            if (selectedItems.count { it < 25 } == 25) {
+                activity.firstBook.background =
+                    ContextCompat.getDrawable(context, R.drawable.rectangle_button_green)
+                activity.firstBook.setTextColor(Color.WHITE)
+            } else {
+                activity.firstBook.background =
+                    ContextCompat.getDrawable(context, R.drawable.rectangle_button)
+                activity.firstBook.setTextColor(Color.BLACK)
+            }
+            if (selectedItems.count { it > 24 } == 25) {
+                activity.secondBook.background =
+                    ContextCompat.getDrawable(context, R.drawable.rectangle_button_green)
+                activity.secondBook.setTextColor(Color.WHITE)
+            } else {
+                activity.secondBook.background =
+                    ContextCompat.getDrawable(context, R.drawable.rectangle_button)
+                activity.secondBook.setTextColor(Color.BLACK)
+            }
         }
     }
 
     override fun getItemCount() = buttonList.size
-    fun add(f : Boolean) {
-        if(!f) for (i in 0..24) {
+    fun add(f: Boolean) {
+        if (!f) for (i in 0..24) {
             selectedItems.add(i)
         }
         else for (i in 25..59) {
@@ -78,15 +95,17 @@ class PartButton(
         }
         notifyDataSetChanged()
     }
-    fun remove(f : Boolean) {
-        if(!f) for (i in 0..25) {
+
+    fun remove(f: Boolean) {
+        if (!f) for (i in 0..24) {
             selectedItems.remove(i)
         }
-        else for (i in 26..59) {
+        else for (i in 25..59) {
             selectedItems.remove(i)
         }
         notifyDataSetChanged()
     }
+
     // Expose selected items for further actions
     fun getSelectedItems() = selectedItems.toList()
 

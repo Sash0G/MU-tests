@@ -67,7 +67,7 @@ class SecondActivity : AppCompatActivity() {
         val option3: String,
         val option4: String,
         val answer: String,
-        val part: String
+        var part: String = "NULL"
     ) : Parcelable
 
     @Parcelize
@@ -105,7 +105,7 @@ class SecondActivity : AppCompatActivity() {
     private val backPressThreshold = 2000
     private val handler = Handler(Looper.getMainLooper())
     private var runnable: Runnable? = null
-
+    private var themes : ArrayList<String>? = null
     override fun onBackPressed() {
         val currentTime = System.currentTimeMillis()
 
@@ -143,7 +143,7 @@ class SecondActivity : AppCompatActivity() {
                 runnable?.let { handler.removeCallbacks(it) }
                 runnable = Runnable {
                     if (firstEditText.width != lastFirstWidth || secondEditText.width != lastSecondWidth) {
-                        getNextQuestionOptionsBlanks(dataList[questionNum].question,true)
+                        getNextQuestionOptionsBlanks(dataList[questionNum].question, true)
                     }
                 }
                 handler.postDelayed(runnable!!, 0)
@@ -340,10 +340,10 @@ class SecondActivity : AppCompatActivity() {
                 '_'
             )
         startOrEnd = ConstraintSet.START
-        topOrBottom= ConstraintSet.TOP
+        topOrBottom = ConstraintSet.TOP
         leftId = questionLayout.id
         topId.add(questionLayout.id)
-        textViewIds = splitText(parts[0].drop(1))
+        textViewIds = splitText(parts[0])
         setConstraintTextView(textViewIds)
         textViewWidth1 = textViewWidth
         setConstraintEditText(firstEditText)
@@ -428,7 +428,7 @@ class SecondActivity : AppCompatActivity() {
             options[1].text = nextQuestion.option2
             options[2].text = nextQuestion.option3
             options[3].text = nextQuestion.option4
-            for(option in options) {
+            for (option in options) {
                 option.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM)
                 option.setAutoSizeTextTypeUniformWithConfiguration(
                     6,  // Min text size (in sp)
@@ -480,8 +480,7 @@ class SecondActivity : AppCompatActivity() {
                 1,   // Granularity of the text size change
                 TypedValue.COMPLEX_UNIT_SP
             )
-            for(option in options)
-            {
+            for (option in options) {
                 option.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM)
                 option.setAutoSizeTextTypeUniformWithConfiguration(
                     6,  // Min text size (in sp)
@@ -502,9 +501,9 @@ class SecondActivity : AppCompatActivity() {
         set2Data = set2Data.shuffled()
         set3Data = set3Data.shuffled()
         set4Data = set4Data.shuffled()
-        dataList = set1Data.subList(0, 20) + set2Data.subList(0, 20) + set3Data.subList(
+        dataList = set1Data.filter { it.part in themes!! }.subList(0, 20) + set2Data.filter { it.part in themes!! }.subList(0, 20) + set3Data.filter { it.part in themes!! }.subList(
             0, 20
-        ) + set4Data.subList(0, 20)
+        ) + set4Data.filter { it.part in themes!! }.subList(0, 20)
     }
 
     private fun initialise() {
@@ -531,17 +530,17 @@ class SecondActivity : AppCompatActivity() {
         firstEditText.inputType = InputType.TYPE_CLASS_TEXT
         secondEditText.imeOptions = EditorInfo.IME_ACTION_GO
         secondEditText.inputType = InputType.TYPE_CLASS_TEXT
-        turnOnOff(true)
     }
 
     private fun blankQuestions() {
         question.visibility = TextView.INVISIBLE
-
         questionLayout.visibility = LinearLayout.VISIBLE
         for (button in options) button.visibility = Button.INVISIBLE
+        turnOnOff(true)
     }
 
     private fun fourOptions() {
+        turnOnOff(false)
         question.visibility = TextView.VISIBLE
         questionLayout.visibility = LinearLayout.INVISIBLE
         for (button in options) button.visibility = Button.VISIBLE
@@ -555,6 +554,7 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun twoOptions() {
+        turnOnOff(false)
         question.visibility = TextView.VISIBLE
         questionLayout.visibility = LinearLayout.INVISIBLE
         options[0].visibility = Button.VISIBLE
@@ -597,13 +597,14 @@ class SecondActivity : AppCompatActivity() {
             parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + parts[1] + chosenAnswer[questionNum].split(
                 ", "
             )[1] + "(" + dataList[questionNum].answer.split(", ")[1] + ")" + parts[2].dropLast(1)
-        else if(chosenAnswer[questionNum].split(", ")[1]==dataList[questionNum].answer.split(", ")[1]) textC =
+        else if (chosenAnswer[questionNum].split(", ")[1] == dataList[questionNum].answer.split(", ")[1]) textC =
             parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + "(" + dataList[questionNum].answer.split(
                 ", "
             )[0] + ")" + parts[1] + chosenAnswer[questionNum].split(", ")[1] + parts[2].dropLast(1)
-        else textC = parts[0].substring(1) + "(" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "(" + dataList[questionNum].answer.split(
-                                                ", "
-                            )[1] + ")" + parts[2].dropLast(1)
+        else textC =
+            parts[0].substring(1) + "(" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "(" + dataList[questionNum].answer.split(
+                ", "
+            )[1] + ")" + parts[2].dropLast(1)
 
         val spannableString = SpannableString(textC)
         for (i in 0..1) {
@@ -614,7 +615,7 @@ class SecondActivity : AppCompatActivity() {
             ) word = chosenAnswer[questionNum].split(", ")[i]
             if (word == "") continue
             val startIndex = textC.indexOf(word)
-            if(startIndex==-1)continue
+            if (startIndex == -1) continue
             val endIndex = startIndex + word.length
             if (chosenAnswer[questionNum].split(", ")[i] == dataList[questionNum].answer.split(", ")[i]) spannableString.setSpan(
                 ForegroundColorSpan(GREEN),
@@ -667,9 +668,9 @@ class SecondActivity : AppCompatActivity() {
                 locations[questionNum][0],
                 locations[questionNum][1]
             )
-            if (questionNum == 0) prevButton.visibility = Button.VISIBLE
+            if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
             if (questionNum == 39) fourOptions()
-            if (questionNum == 69) blankQuestions()
+            if (questionNum == 59) blankQuestions()
             if (questionNum == 78) {
                 nextButton.visibility = Button.VISIBLE
                 startOverButton.visibility = Button.INVISIBLE
@@ -722,7 +723,6 @@ class SecondActivity : AppCompatActivity() {
 
     private fun newTest() {
         setNavBar(0)
-        turnOnOff(true)
         textResult.visibility = TextView.INVISIBLE
         for (option in options) option.setBackgroundResource(R.drawable.rectangle_button)
         correct.clear()
@@ -784,8 +784,9 @@ class SecondActivity : AppCompatActivity() {
                     showResult()
                 }
                 builder.setNegativeButton("No") { dialog, which ->
-                    questionNum--
+
                 }
+                questionNum--
                 val dialog = builder.create()
                 dialog.show()
             }
@@ -902,15 +903,17 @@ class SecondActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val data = intent.getParcelableExtra<MyData>("test")
-
         initialise()
         addButtons()
-        if (data == null) newTest()
+        val data = intent.getParcelableExtra<MyData>("test")
+        themes = intent.getStringArrayListExtra("parts")
+        if (themes != null) newTest()
         else {
-            dataList = data.questions
+            dataList = data!!.questions
             chosenAnswer = data.answers
             showResult(data.result, true)
         }
+
+        print(data)
     }
 }

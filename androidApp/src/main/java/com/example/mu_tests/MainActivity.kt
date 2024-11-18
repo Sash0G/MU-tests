@@ -28,18 +28,20 @@ import eightbitlab.com.blurview.RenderScriptBlur
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
-    lateinit var button: Button
-    lateinit var button2: Button
-    lateinit var sginInButton: Button
-    lateinit var signUpButton: Button
-    lateinit var userLayout: androidx.constraintlayout.widget.ConstraintLayout
-    lateinit var emailLayout: androidx.constraintlayout.widget.ConstraintLayout
-    lateinit var keyLayout: androidx.constraintlayout.widget.ConstraintLayout
-    lateinit var textOr: TextView
-    lateinit var emailInput: EditText
-    lateinit var passwordInput: EditText
-    lateinit var usernameInput: EditText
+    private lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
+    private lateinit var button: Button
+    private lateinit var button2: Button
+    private lateinit var sginInButton: Button
+    private lateinit var signUpButton: Button
+    private lateinit var userLayout: androidx.constraintlayout.widget.ConstraintLayout
+    private lateinit var emailLayout: androidx.constraintlayout.widget.ConstraintLayout
+    private lateinit var keyLayout: androidx.constraintlayout.widget.ConstraintLayout
+    private lateinit var textOr: TextView
+    private lateinit var emailInput: EditText
+    private lateinit var passwordInput: EditText
+    private lateinit var usernameInput: EditText
+    lateinit var firstBook: Button
+    lateinit var secondBook: Button
 
     private fun checkForUpdates() {
         firebaseRemoteConfig.fetchAndActivate()
@@ -91,8 +93,8 @@ class MainActivity : AppCompatActivity() {
         }
         var isClicked1 = false
         var isClicked2 = false
-        val firstBook = findViewById<Button>(R.id.firstBook)
-        val secondBook = findViewById<Button>(R.id.secondBook)
+        firstBook = findViewById<Button>(R.id.firstBook)
+        secondBook = findViewById<Button>(R.id.secondBook)
         firstBook.setOnClickListener{
             if(!isClicked1){
                 firstBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
@@ -108,25 +110,29 @@ class MainActivity : AppCompatActivity() {
             }
         }
        secondBook.setOnClickListener{
-            if(!isClicked2){
-                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
-                secondBook.setTextColor(ContextCompat.getColor(this, R.color.white))
-                buttonAdapter.add(true)
-                isClicked2 = true
-            }
-            else {
-                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button)
-                secondBook.setTextColor(ContextCompat.getColor(this, R.color.black))
-                buttonAdapter.remove(true)
-                isClicked2 = false
-            }
+//            if(!isClicked2){
+//                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
+//                secondBook.setTextColor(ContextCompat.getColor(this, R.color.white))
+//                buttonAdapter.add(true)
+//                isClicked2 = true
+//            }
+//            else {
+//                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button)
+//                secondBook.setTextColor(ContextCompat.getColor(this, R.color.black))
+//                buttonAdapter.remove(true)
+//                isClicked2 = false
+//            }
         }
         findViewById<Button>(R.id.start).setOnClickListener {
-            val parts =  mutableListOf<String>()
-            for(i in buttonAdapter.selectedItems)parts.add("Тема ${i+1}")
-            val intent = Intent(this, SecondActivity::class.java)
-            intent.putStringArrayListExtra("parts", ArrayList(parts))
-            ContextCompat.startActivity(this, intent, null)
+            if(buttonAdapter.selectedItems.isNotEmpty()) {
+                val parts = mutableListOf<String>()
+                println(buttonAdapter.selectedItems)
+                for (i in buttonAdapter.selectedItems) parts.add("Тема ${i + 1}")
+                val intent = Intent(this, SecondActivity::class.java)
+                intent.putStringArrayListExtra("parts", ArrayList(parts))
+                ContextCompat.startActivity(this, intent, null)
+
+            }
         }
 
     }
