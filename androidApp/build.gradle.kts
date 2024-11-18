@@ -58,4 +58,5 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.storage)
+    implementation ("com.github.Dimezis:BlurView:version-2.0.5")
 }

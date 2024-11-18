@@ -1,5 +1,6 @@
 package com.example.mu_tests
 
+import PartButton
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -14,12 +15,17 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import eightbitlab.com.blurview.BlurView
+import eightbitlab.com.blurview.RenderScriptBlur
+import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
     lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
@@ -74,7 +80,56 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Later", null)
             .show()
     }
+    private fun chooseParts() {
+        val recyclerView: RecyclerView = findViewById(R.id.scrollView)
+        val buttonAdapter = PartButton(this,this, List(60) { it }) { isInSelectionMode ->
+        }
+        val gridLayoutManager = GridLayoutManager(this, 3)
+        recyclerView.apply {
+            layoutManager = gridLayoutManager
+            adapter = buttonAdapter
+        }
+        var isClicked1 = false
+        var isClicked2 = false
+        val firstBook = findViewById<Button>(R.id.firstBook)
+        val secondBook = findViewById<Button>(R.id.secondBook)
+        firstBook.setOnClickListener{
+            if(!isClicked1){
+                firstBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
+                firstBook.setTextColor(ContextCompat.getColor(this, R.color.white))
+                buttonAdapter.add(false)
+                isClicked1 = true
+            }
+            else {
+                firstBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button)
+                firstBook.setTextColor(ContextCompat.getColor(this, R.color.black))
+                buttonAdapter.remove(false)
+                isClicked1 = false
+            }
+        }
+       secondBook.setOnClickListener{
+            if(!isClicked2){
+                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
+                secondBook.setTextColor(ContextCompat.getColor(this, R.color.white))
+                buttonAdapter.add(true)
+                isClicked2 = true
+            }
+            else {
+                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button)
+                secondBook.setTextColor(ContextCompat.getColor(this, R.color.black))
+                buttonAdapter.remove(true)
+                isClicked2 = false
+            }
+        }
+        findViewById<Button>(R.id.start).setOnClickListener {
+            val parts =  mutableListOf<String>()
+            for(i in buttonAdapter.selectedItems)parts.add("Тема ${i+1}")
+            val intent = Intent(this, SecondActivity::class.java)
+            intent.putStringArrayListExtra("parts", ArrayList(parts))
+            ContextCompat.startActivity(this, intent, null)
+        }
 
+    }
     private fun initialize() {
         button = findViewById<Button>(R.id.button1)
         button2 = findViewById<Button>(R.id.button2)
@@ -89,6 +144,31 @@ class MainActivity : AppCompatActivity() {
         emailInput = findViewById<EditText>(R.id.emailInput)
         passwordInput = findViewById<EditText>(R.id.passwordInput)
         usernameInput = findViewById<EditText>(R.id.usernameInput)
+        var layoutParams = button.layoutParams
+        layoutParams.height =
+            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        layoutParams.width =
+            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        button.layoutParams = layoutParams
+        layoutParams = button2.layoutParams
+        layoutParams.height =
+            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        layoutParams.width =
+            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
+        button2.layoutParams = layoutParams
+
+        button.setOnClickListener {
+            findViewById<ConstraintLayout>(R.id.constraintLayout).visibility = android.view.View.VISIBLE
+            findViewById<BlurView>(R.id.blurView).visibility = android.view.View.VISIBLE
+            chooseParts()
+            button.visibility = android.view.View.INVISIBLE
+            button2.visibility = android.view.View.INVISIBLE
+        }
+        button2.setOnClickListener {
+            val intent = Intent(this, ThirdActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun signIn() {
@@ -146,7 +226,6 @@ class MainActivity : AppCompatActivity() {
                                 .setDuration(300)
                         } else {
                             println("Error: ${task.exception?.message}")
-
                         }
                     }
                 emailInput.text.clear()
@@ -159,23 +238,23 @@ class MainActivity : AppCompatActivity() {
                     emailInput.text.trim().toString(),
                     passwordInput.text.trim().toString()
                 )
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        println("User signed in successfully!")
-                        val user = task.result?.user
-                        val profileUpdates = UserProfileChangeRequest.Builder()
-                            .setDisplayName(usernameInput.text.toString()) // Set the desired username
-                            .build()
-                        user?.updateProfile(profileUpdates)
-                        layout.translationY = 0f
-                        layout.animate()
-                            .translationY(0.8f * resources.displayMetrics.heightPixels)
-                            .alpha(0f)
-                            .setDuration(800)
-                    } else {
-                        println("Error: ${task.exception?.message}")
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            println("User signed in successfully!")
+                            val user = task.result?.user
+                            val profileUpdates = UserProfileChangeRequest.Builder()
+                                .setDisplayName(usernameInput.text.toString()) // Set the desired username
+                                .build()
+                            user?.updateProfile(profileUpdates)
+                            layout.translationY = 0f
+                            layout.animate()
+                                .translationY(0.8f * resources.displayMetrics.heightPixels)
+                                .alpha(0f)
+                                .setDuration(800)
+                        } else {
+                            println("Error: ${task.exception?.message}")
+                        }
                     }
-                }
             }
         }
     }
@@ -191,40 +270,24 @@ class MainActivity : AppCompatActivity() {
         }
         analytics.logEvent("Splash", bundle)
         initialize()
-
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
         val configSettings = FirebaseRemoteConfigSettings.Builder()
             .setMinimumFetchIntervalInSeconds(3600)
             .build()
         firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
         checkForUpdates()
-        // Kotlin
 
-        var layoutParams = button.layoutParams
-        layoutParams.height =
-            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
-        layoutParams.width =
-            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
-        button.layoutParams = layoutParams
-        layoutParams = button2.layoutParams
-        layoutParams.height =
-            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
-        layoutParams.width =
-            (0.4 * resources.displayMetrics.widthPixels).toInt() // Set the width in pixels
-        button2.layoutParams = layoutParams
-
-        button2.setOnClickListener {
-            val intent = Intent(this, ThirdActivity::class.java)
-            startActivity(intent)
-        }
-        button.setOnClickListener {
-            val intent = Intent(this, SecondActivity::class.java)
-            startActivity(intent)
-        }
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
             signIn()
         }
         analytics.setUserProperty("displayName", user?.displayName)
+
+        val blurView: BlurView = findViewById(R.id.blurView)
+        val decorView = window.decorView
+
+        blurView.setupWith(decorView.findViewById(android.R.id.content))
+            .setFrameClearDrawable(window.decorView.background) // Use RenderScript for the blur
+            .setBlurRadius(3f) // Adjust the blur radius
     }
 }

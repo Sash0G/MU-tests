@@ -36,7 +36,7 @@ class ThirdActivity : AppCompatActivity() {
             val fileContent = file.readText()
             testList =  gson.fromJson(fileContent, object : TypeToken<MutableList<MyData>>() {}.type)
             val recyclerView: RecyclerView = findViewById(R.id.scrollView)
-            buttonAdapter = ButtonAdapter(this,this, generateButtonList()) { isInSelectionMode ->
+            buttonAdapter = ButtonAdapter(this,this, List(testList.size) { it }) { isInSelectionMode ->
                 if (isInSelectionMode) deleteButton.visibility = View.VISIBLE
                 else deleteButton.visibility = View.INVISIBLE
             }
@@ -69,9 +69,6 @@ class ThirdActivity : AppCompatActivity() {
         }
         iniatilise()
         listOldTests()
-    }
-    private fun generateButtonList(): List<Int> {
-        return List(testList.size) { it }
     }
     @Deprecated("")
     override fun onBackPressed() {

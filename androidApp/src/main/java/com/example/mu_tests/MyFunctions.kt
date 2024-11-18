@@ -23,14 +23,15 @@ fun readGroup1(context: Context, fileName: String): List<DataFormat> {
 
     var nextLine: Array<String>?
     while (reader.readNext().also { nextLine = it } != null) {
-        if (nextLine?.size == 6) {
+        if (nextLine?.size == 7) {
             val row = DataFormat(
                 question = nextLine!![0],
                 option1 = nextLine!![1],
                 option2 = nextLine!![2],
                 option3 = nextLine!![3],
                 option4 = nextLine!![4],
-                answer = nextLine!![5]
+                answer = nextLine!![5],
+                part = nextLine!![6]
             )
             data.add(row)
         }
@@ -49,14 +50,15 @@ fun readGroup2(context: Context, fileName: String): List<DataFormat> {
 
     var nextLine: Array<String>?
     while (reader.readNext().also { nextLine = it } != null) {
-        if (nextLine?.size == 2) {
+        if (nextLine?.size == 3) {
             val row = DataFormat(
                 question = nextLine!![0],
                 answer = nextLine!![1],
                 option1 = "",
                 option2 = "",
                 option3 = "",
-                option4 = ""
+                option4 = "",
+                part = nextLine!![2]
             )
             data.add(row)
         }
