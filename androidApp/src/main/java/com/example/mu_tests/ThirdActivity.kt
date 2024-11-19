@@ -55,7 +55,7 @@ class ThirdActivity : AppCompatActivity() {
                         ) {
                             correct.set(questionNumK)
                             correct.clear(questionNumK + 80)
-                        } else if (testList[i].answers[questionNumK].split(", ").size>1&&testList[i].answers[questionNumK].split(", ")[1] == testList[i].questions[questionNumK].answer.split(
+                        } else if (testList[i].answers[questionNumK].split(", ").size>1&&testList[i].questions[questionNumK].answer.split(", ").size>1&&testList[i].answers[questionNumK].split(", ")[1] == testList[i].questions[questionNumK].answer.split(
                                 ", "
                             )[1]
                         ) {

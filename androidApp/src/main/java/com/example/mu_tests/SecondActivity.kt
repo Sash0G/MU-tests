@@ -392,7 +392,10 @@ class SecondActivity : AppCompatActivity() {
             if (chosenAnswer[questionNumK].split(", ")[0] == dataList[questionNumK].answer.split(", ")[0]) {
                 correct.set(questionNumK)
                 correct.clear(questionNumK + 80)
-            } else if (chosenAnswer[questionNumK].split(", ")[1] == dataList[questionNumK].answer.split(", ")[1]) {
+            } else if (chosenAnswer[questionNumK].split(", ")[1] == dataList[questionNumK].answer.split(
+                    ", "
+                )[1]
+            ) {
                 correct.clear(questionNumK)
                 correct.set(questionNumK + 80)
             }
@@ -514,11 +517,20 @@ class SecondActivity : AppCompatActivity() {
         set2Data = set2Data.shuffled()
         set3Data = set3Data.shuffled()
         set4Data = set4Data.shuffled()
-        dataList = set1Data.filter { it.part in themes!! }
-            .subList(0, 20) + set2Data.filter { it.part in themes!! }
-            .subList(0, 20) + set3Data.filter { it.part in themes!! }.subList(
-            0, 20
-        ) + set4Data.filter { it.part in themes!! }.subList(0, 20)
+        if (set1Data.filter { it.part in themes!! }.size < 20 || set2Data.filter { it.part in themes!! }.size < 20 || set3Data.filter { it.part in themes!! }.size < 20 || set4Data.filter { it.part in themes!! }.size < 20) {
+            Toast.makeText(this,"Няма достатъчно задачи в избраните теми", Toast.LENGTH_LONG).show()
+            finish()
+            super.onBackPressed()
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            dataList = set1Data.filter { it.part in themes!! }
+        }
+        else {
+            dataList = set1Data.filter { it.part in themes!! }
+                .subList(0, 20) + set2Data.filter { it.part in themes!! }
+                .subList(0, 20) + set3Data.filter { it.part in themes!! }.subList(
+                0, 20
+            ) + set4Data.filter { it.part in themes!! }.subList(0, 20)
+        }
     }
 
     private fun initialise() {

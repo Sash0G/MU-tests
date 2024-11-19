@@ -113,18 +113,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
         secondBook.setOnClickListener {
-//            if(!isClicked2){
-//                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
-//                secondBook.setTextColor(ContextCompat.getColor(this, R.color.white))
-//                buttonAdapter.add(true)
-//                isClicked2 = true
-//            }
-//            else {
-//                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button)
-//                secondBook.setTextColor(ContextCompat.getColor(this, R.color.black))
-//                buttonAdapter.remove(true)
-//                isClicked2 = false
-//            }
+            if(!isClicked2){
+                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button_green)
+                secondBook.setTextColor(ContextCompat.getColor(this, R.color.white))
+                buttonAdapter.add(true)
+                isClicked2 = true
+            }
+            else {
+                secondBook.background = ContextCompat.getDrawable(this, R.drawable.rectangle_button)
+                secondBook.setTextColor(ContextCompat.getColor(this, R.color.black))
+                buttonAdapter.remove(true)
+                isClicked2 = false
+            }
         }
         findViewById<Button>(R.id.start).setOnClickListener {
             if (buttonAdapter.selectedItems.isNotEmpty()) {

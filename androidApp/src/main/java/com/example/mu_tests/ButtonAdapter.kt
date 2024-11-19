@@ -83,19 +83,14 @@ class ButtonAdapter(
             }
             if (selectedItems.size == 0) exitSelectionMode()
         }
-//        holder.button.text = "Result: ${activity.testList[position].result}/80"
         holder.progressText.text = activity.testList[position].result.toString()+"/120"
-        val progress = (activity.testList[position].result*0.0125f*100).toInt()
+        val progress = (activity.testList[position].result*0.0083f*100).toInt()
         holder.circularProgressBar.progress=progress
         if(progress<=35)holder.circularProgressBar.progressDrawable = ContextCompat.getDrawable(context, R.drawable.red_progress)
         else if(progress<=70)holder.circularProgressBar.progressDrawable = ContextCompat.getDrawable(context, R.drawable.yellow_progress)
         else holder.circularProgressBar.progressDrawable = ContextCompat.getDrawable(context, R.drawable.green_progress)
-
-//        holder.button.layoutParams.height = holder.button.layoutParams.width
-        // Click button to toggle selection mode if it’s active
         holder.button.setOnClickListener {
             if (isSelectionMode) {
-                // Toggle selection state when in selection mode
                 holder.checkBox.isChecked = !holder.checkBox.isChecked
                 if (holder.checkBox.isChecked) {
                     selectedItems.add(position)
