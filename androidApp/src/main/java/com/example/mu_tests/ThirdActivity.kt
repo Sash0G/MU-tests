@@ -63,6 +63,12 @@ class ThirdActivity : AppCompatActivity() {
                             correct.set(questionNumK + 80)
                         }
                     }
+                    if(questionNumK in 40..59)
+                    {
+                        if(testList[i].answers[questionNumK]=="" || testList[i].questions[questionNumK].answer=="," || testList[i].questions[questionNumK].answer=="-, -")testList[i].answers[questionNumK]="_, _"
+                        if(testList[i].questions[questionNumK].answer.split(", ")[0]=="-")testList[i].answers[questionNumK]="_"+", "+testList[i].answers[questionNumK]
+                        if(testList[i].answers[questionNumK].split(", ").size>1&&testList[i].answers[questionNumK].split(", ")[1]=="-")testList[i].answers[questionNumK]+=", _"
+                    }
                 }
                 testList[i].result = correct.cardinality()
             }

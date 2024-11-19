@@ -400,12 +400,8 @@ class SecondActivity : AppCompatActivity() {
                 correct.set(questionNumK + 80)
             }
         }
-        if (chosenAnswer[questionNumK] == "" || (questionNumK in 40..59 && (chosenAnswer[questionNumK].split(
-                ", "
-            ).size < 2 || chosenAnswer[questionNumK].split(", ")[0] == "" || chosenAnswer[questionNumK].split(
-                ", "
-            )[1] == ""))
-        ) {
+        if (chosenAnswer[questionNumK] == "" || chosenAnswer[questionNumK] == "_, _")
+        {
             used.clear(questionNumK)
             findViewById<Button>((questionNumK + 1) * randomNum).setBackgroundResource(R.drawable.rectangle_button)
         } else {
@@ -605,19 +601,15 @@ class SecondActivity : AppCompatActivity() {
         questionLayout.visibility = LinearLayout.INVISIBLE
         var textC = " " + dataList[questionNum].question + " "
         val parts = textC.split('_')
-        println(questionNum)
-        println(dataList[questionNum].answer)
-        println(chosenAnswer[questionNum] + "!!!")
-
-        if (chosenAnswer[questionNum] == "" || chosenAnswer[questionNum] == ", ") textC =
-            parts[0].substring(1) + "(" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "(" + dataList[questionNum].answer.split(
+        if (chosenAnswer[questionNum] == "_, _") textC =
+            parts[0].drop(1) + "_ (" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "_ (" + dataList[questionNum].answer.split(
                 ", "
             )[1] + ")" + parts[2].dropLast(1)
         else if (chosenAnswer[questionNum].split(", ")[0] == dataList[questionNum].answer.split(", ")[0] && chosenAnswer[questionNum].split(
                 ", "
             )[1] == dataList[questionNum].answer.split(", ")[1]
         ) textC =
-            parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + parts[1] + chosenAnswer[questionNum].split(
+            parts[0].drop(1) + chosenAnswer[questionNum].split(", ")[0] + parts[1] + chosenAnswer[questionNum].split(
                 ", "
             )[1] + parts[2].dropLast(1)
         else if (chosenAnswer[questionNum].split(", ")[0] == dataList[questionNum].answer.split(", ")[0]) textC =
@@ -628,21 +620,18 @@ class SecondActivity : AppCompatActivity() {
             parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + "(" + dataList[questionNum].answer.split(
                 ", "
             )[0] + ")" + parts[1] + chosenAnswer[questionNum].split(", ")[1] + parts[2].dropLast(1)
-        else textC =
-            parts[0].substring(1) + "(" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "(" + dataList[questionNum].answer.split(
+        else  textC =
+            parts[0].drop(1) +  chosenAnswer[questionNum].split(", ")[0] + " (" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] +  chosenAnswer[questionNum].split(", ")[1] + " (" + dataList[questionNum].answer.split(
                 ", "
             )[1] + ")" + parts[2].dropLast(1)
-
         val spannableString = SpannableString(textC)
+        var prev = -1
         for (i in 0..1) {
-            var word = ""
-            if (chosenAnswer[questionNum] != "" && chosenAnswer[questionNum] != ", " && chosenAnswer[questionNum].split(
-                    ", "
-                ).size > i
-            ) word = chosenAnswer[questionNum].split(", ")[i]
-            if (word == "") continue
-            val startIndex = textC.indexOf(word)
-            if (startIndex == -1) continue
+            val word = chosenAnswer[questionNum].split(", ")[i]
+            println(textC)
+            println(word)
+            val startIndex = textC.indexOf(word,prev+1)
+            prev = startIndex
             val endIndex = startIndex + word.length
             if (chosenAnswer[questionNum].split(", ")[i] == dataList[questionNum].answer.split(", ")[i]) spannableString.setSpan(
                 ForegroundColorSpan(GREEN),
@@ -717,7 +706,7 @@ class SecondActivity : AppCompatActivity() {
 
     private fun showQuestionOptions(questionNumK: Int = questionNum - 1) {
         if (questionNumK in 40..59) chosenAnswer[questionNumK] =
-            firstEditText.text.toString() + ", " + secondEditText.text.toString()
+            firstEditText.text.toString().trim().ifEmpty { "-" } + ", " + secondEditText.text.toString().trim().ifEmpty { "-" }
         if (chosenAnswer[questionNum] != "") changeState(
             options[map[chosenAnswer[questionNum]]!!], false
         )
@@ -727,14 +716,14 @@ class SecondActivity : AppCompatActivity() {
 
     private fun showQuestionBlanks(questionNumK: Int = questionNum - 1) {
         if (questionNumK in 40..59) chosenAnswer[questionNumK] =
-            firstEditText.text.toString().trim() + ", " + secondEditText.text.toString().trim()
+            firstEditText.text.toString().trim().ifEmpty { "-" } + ", " + secondEditText.text.toString().trim().ifEmpty { "-" }
         turnOnOff(false)
-        if (chosenAnswer[questionNum] != "" || chosenAnswer[questionNum] != ", ") firstEditText.setText(
+        if (chosenAnswer[questionNum].split(", ")[0]!="-") firstEditText.setText(
             chosenAnswer[questionNum].split(", ")[0]
         )
         else firstEditText.setText("")
 
-        if (chosenAnswer[questionNum].split(", ").size > 1) secondEditText.setText(
+        if (chosenAnswer[questionNum].split(", ")[1]!="-") secondEditText.setText(
             chosenAnswer[questionNum].split(
                 ", "
             )[1]
@@ -745,7 +734,6 @@ class SecondActivity : AppCompatActivity() {
         turnOnOff(true)
         FirebaseCrashlytics.getInstance().log(dataList[questionNum].question)
         getNextQuestionOptionsBlanks(dataList[questionNum].question, true)
-
     }
 
     private fun newTest() {
@@ -754,6 +742,7 @@ class SecondActivity : AppCompatActivity() {
         for (option in options) option.setBackgroundResource(R.drawable.rectangle_button)
         correct.clear()
         chosenAnswer = Array(80) { "" }
+        for (i in 40..59) chosenAnswer[i]="_, _"
         newDataSet()
         fourOptions()
         questionNum = 0
