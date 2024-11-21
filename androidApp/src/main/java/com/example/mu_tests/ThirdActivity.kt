@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mu_tests.SecondActivity.MyData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.apache.commons.text.similarity.LevenshteinDistance
 import java.io.File
 import java.util.BitSet
 
@@ -30,13 +31,14 @@ class ThirdActivity : AppCompatActivity() {
     private lateinit var tests: MutableList<MyData>
     lateinit var testList: MutableList<MyData>
     var correct = BitSet(160)
+    lateinit var file : File
+    val gson = Gson()
+    var t = false
     private fun listOldTests() {
-        val file = File(this.filesDir, "data.json")
-
-        val gson = Gson()
+        file = File(this.filesDir, "data.json")
         if (file.exists()) {
             val fileContent = file.readText()
-
+            t=true
             testList = gson.fromJson(fileContent, object : TypeToken<MutableList<MyData>>() {}.type)
             for (i in testList.indices) {
                 for (questionNumK in 0..79) {
@@ -48,16 +50,34 @@ class ThirdActivity : AppCompatActivity() {
                         correct.set(questionNumK)
                         correct.set(questionNumK + 80)
                     }
-                    if (testList[i].answers[questionNumK] != testList[i].questions[questionNumK].answer && questionNumK in 40..59) {
-                        if (testList[i].answers[questionNumK].split(", ")[0] == testList[i].questions[questionNumK].answer.split(
-                                ", "
-                            )[0]
+                    if (questionNumK in 40..59 && testList[i].answers[questionNumK] != testList[i].questions[questionNumK].answer) {
+                        var answer = testList[i].answers[questionNumK].split(", ")
+                        var intendedAnswer = testList[i].questions[questionNumK].answer.split(", ")
+                        if(answer.size==1)answer= listOf(answer[0],"")
+                        if(intendedAnswer.size==1)intendedAnswer= listOf(intendedAnswer[0],"")
+                        if (answer[0] == intendedAnswer[1] || answer[1] == intendedAnswer[0]) answer =
+                            answer.reversed()
+                        if ((answer[0] == intendedAnswer[0] || (LevenshteinDistance().apply(
+                                intendedAnswer[0],
+                                answer[0]
+                            ) <= 2 && answer[0].length > 3)) && (answer[1] == intendedAnswer[1] || (LevenshteinDistance().apply(
+                                intendedAnswer[1],
+                                answer[1]
+                            ) <= 2 && answer[1].length > 3))
+                        ) {
+                            correct.set(questionNumK)
+                            correct.set(questionNumK + 80)
+                        } else if (answer[0] == intendedAnswer[0] || (LevenshteinDistance().apply(
+                                intendedAnswer[0],
+                                answer[0]
+                            ) <= 2 && answer[0].length > 3)
                         ) {
                             correct.set(questionNumK)
                             correct.clear(questionNumK + 80)
-                        } else if (testList[i].answers[questionNumK].split(", ").size>1&&testList[i].questions[questionNumK].answer.split(", ").size>1&&testList[i].answers[questionNumK].split(", ")[1] == testList[i].questions[questionNumK].answer.split(
-                                ", "
-                            )[1]
+                        } else if (answer[1] == intendedAnswer[1] || (LevenshteinDistance().apply(
+                                intendedAnswer[1],
+                                answer[1]
+                            ) <= 2 && answer[1].length > 3)
                         ) {
                             correct.clear(questionNumK)
                             correct.set(questionNumK + 80)
@@ -71,6 +91,7 @@ class ThirdActivity : AppCompatActivity() {
                     }
                 }
                 testList[i].result = correct.cardinality()
+                file.writeText(gson.toJson(testList))
             }
 
             val recyclerView: RecyclerView = findViewById(R.id.scrollView)
@@ -116,11 +137,11 @@ class ThirdActivity : AppCompatActivity() {
 
     @Deprecated("")
     override fun onBackPressed() {
-        if (buttonAdapter.isSelectionMode) buttonAdapter.exitSelectionMode()
-        else {
-            finish()
-            super.onBackPressed()
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-        }
+        if (t) {if(buttonAdapter.isSelectionMode) buttonAdapter.exitSelectionMode()
+        file.writeText(gson.toJson(testList))}
+        finish()
+        super.onBackPressed()
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
     }
 }

@@ -1,8 +1,7 @@
 package com.example.mu_tests
 
 import android.graphics.Color
-import android.graphics.Color.GREEN
-import android.graphics.Color.RED
+import android.graphics.Color.YELLOW
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -35,8 +34,10 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.parcelize.Parcelize
+import org.apache.commons.text.similarity.LevenshteinDistance
 import java.io.File
 import java.util.Vector
+import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
     private lateinit var options: List<Button>
@@ -388,20 +389,40 @@ class SecondActivity : AppCompatActivity() {
             correct.set(questionNumK)
             correct.set(questionNumK + 80)
         }
-        if (chosenAnswer[questionNumK] != dataList[questionNumK].answer && questionNumK in 40..59) {
-            if (chosenAnswer[questionNumK].split(", ")[0] == dataList[questionNumK].answer.split(", ")[0]) {
+        if (questionNumK in 40..59 && chosenAnswer[questionNumK] != dataList[questionNumK].answer) {
+            var answer = chosenAnswer[questionNumK].split(", ")
+            var intendedAnswer = dataList[questionNumK].answer.split(", ")
+            if (answer.size == 1) answer = listOf(answer[0], "")
+            if (intendedAnswer.size == 1) intendedAnswer = listOf(intendedAnswer[0], "")
+            if (answer[0] == intendedAnswer[1] || answer[1] == intendedAnswer[0]) answer =
+                answer.reversed()
+            if ((answer[0] == intendedAnswer[0] || (LevenshteinDistance().apply(
+                    intendedAnswer[0],
+                    answer[0]
+                ) <= 2 && answer[0].length > 3)) && (answer[1] == intendedAnswer[1] || (LevenshteinDistance().apply(
+                    intendedAnswer[1],
+                    answer[1]
+                ) <= 2 && answer[1].length > 3))
+            ) {
+                correct.set(questionNumK)
+                correct.set(questionNumK + 80)
+            } else if (answer[0] == intendedAnswer[0] || (LevenshteinDistance().apply(
+                    intendedAnswer[0],
+                    answer[0]
+                ) <= 2 && answer[0].length > 3)
+            ) {
                 correct.set(questionNumK)
                 correct.clear(questionNumK + 80)
-            } else if (chosenAnswer[questionNumK].split(", ")[1] == dataList[questionNumK].answer.split(
-                    ", "
-                )[1]
+            } else if (answer[1] == intendedAnswer[1] || (LevenshteinDistance().apply(
+                    intendedAnswer[1],
+                    answer[1]
+                ) <= 2 && answer[1].length > 3)
             ) {
                 correct.clear(questionNumK)
                 correct.set(questionNumK + 80)
             }
         }
-        if (chosenAnswer[questionNumK] == "" || chosenAnswer[questionNumK] == "_, _")
-        {
+        if (chosenAnswer[questionNumK] == "" || chosenAnswer[questionNumK] == "_, _") {
             used.clear(questionNumK)
             findViewById<Button>((questionNumK + 1) * randomNum).setBackgroundResource(R.drawable.rectangle_button)
         } else {
@@ -509,18 +530,19 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun newDataSet() {
-        set1Data = set1Data.shuffled()
-        set2Data = set2Data.shuffled()
-        set3Data = set3Data.shuffled()
-        set4Data = set4Data.shuffled()
+
+        set1Data = set1Data.shuffled(Random(System.currentTimeMillis()))
+        set2Data = set2Data.shuffled(Random(System.currentTimeMillis()))
+        set3Data = set3Data.shuffled(Random(System.currentTimeMillis()))
+        set4Data = set4Data.shuffled(Random(System.currentTimeMillis()))
         if (set1Data.filter { it.part in themes!! }.size < 20 || set2Data.filter { it.part in themes!! }.size < 20 || set3Data.filter { it.part in themes!! }.size < 20 || set4Data.filter { it.part in themes!! }.size < 20) {
-            Toast.makeText(this,"Няма достатъчно задачи в избраните теми", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Няма достатъчно задачи в избраните теми", Toast.LENGTH_LONG)
+                .show()
             finish()
             super.onBackPressed()
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             dataList = set1Data.filter { it.part in themes!! }
-        }
-        else {
+        } else {
             dataList = set1Data.filter { it.part in themes!! }
                 .subList(0, 20) + set2Data.filter { it.part in themes!! }
                 .subList(0, 20) + set3Data.filter { it.part in themes!! }.subList(
@@ -597,51 +619,92 @@ class SecondActivity : AppCompatActivity() {
 
     private fun showAnswerBlanks() {
         FirebaseCrashlytics.getInstance().log(dataList[questionNum].question)
+        var answer = chosenAnswer[questionNum].split(", ")
+        var intendedAnswer = dataList[questionNum].answer.split(", ")
+        if (answer.size == 1) answer = listOf(answer[0], "")
+        if (intendedAnswer.size == 1) intendedAnswer = listOf(intendedAnswer[0], "")
         question.visibility = TextView.VISIBLE
         questionLayout.visibility = LinearLayout.INVISIBLE
+        if (answer[0] == intendedAnswer[1] || answer[1] == intendedAnswer[0]
+        ) answer = answer.reversed()
         var textC = " " + dataList[questionNum].question + " "
         val parts = textC.split('_')
-        if (chosenAnswer[questionNum] == "_, _") textC =
-            parts[0].drop(1) + "_ (" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "_ (" + dataList[questionNum].answer.split(
-                ", "
-            )[1] + ")" + parts[2].dropLast(1)
-        else if (chosenAnswer[questionNum].split(", ")[0] == dataList[questionNum].answer.split(", ")[0] && chosenAnswer[questionNum].split(
-                ", "
-            )[1] == dataList[questionNum].answer.split(", ")[1]
-        ) textC =
-            parts[0].drop(1) + chosenAnswer[questionNum].split(", ")[0] + parts[1] + chosenAnswer[questionNum].split(
-                ", "
-            )[1] + parts[2].dropLast(1)
-        else if (chosenAnswer[questionNum].split(", ")[0] == dataList[questionNum].answer.split(", ")[0]) textC =
-            parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + parts[1] + chosenAnswer[questionNum].split(
-                ", "
-            )[1] + "(" + dataList[questionNum].answer.split(", ")[1] + ")" + parts[2].dropLast(1)
-        else if (chosenAnswer[questionNum].split(", ")[1] == dataList[questionNum].answer.split(", ")[1]) textC =
-            parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + "(" + dataList[questionNum].answer.split(
-                ", "
-            )[0] + ")" + parts[1] + chosenAnswer[questionNum].split(", ")[1] + parts[2].dropLast(1)
-        else  textC =
-            parts[0].drop(1) +  chosenAnswer[questionNum].split(", ")[0] + " (" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] +  chosenAnswer[questionNum].split(", ")[1] + " (" + dataList[questionNum].answer.split(
-                ", "
-            )[1] + ")" + parts[2].dropLast(1)
+        val ind = mutableListOf<Int>()
+        ind.add(parts[0].length - 1)
+        textC = parts[0].drop(1) + answer[0] + parts[1]
+        ind.add(textC.length)
+        textC += answer[1] + parts[2].dropLast(1)
+//        if (LevenshteinDistance().apply(
+//                dataList[questionNum].answer.split(", ")[0],
+//                chosenAnswer[questionNum].split(", ")[0]
+//            ) <= 2
+//        ) textC = parts[0].drop(1) + "✅" + dataList[questionNum].answer.split(", ")[0] + parts[1]
+//        else textC = parts[0].drop(1) + "❌" + chosenAnswer[questionNum].split(", ")[0] + parts[1]
+//        ind.add(textC.length + 1)
+//        if (LevenshteinDistance().apply(
+//                dataList[questionNum].answer.split(", ")[1],
+//                chosenAnswer[questionNum].split(", ")[1]
+//            ) <= 2
+//        ) textC += "✅" + dataList[questionNum].answer.split(", ")[1] + parts[2].dropLast(1)
+//        else textC += "❌" + chosenAnswer[questionNum].split(", ")[1] + parts[2].dropLast(1)
+        textC += "\n\nВерни отговори:"
+        if (answer[0] == intendedAnswer[0] || (LevenshteinDistance().apply(
+                intendedAnswer[0],
+                answer[0]
+            ) <= 2 && answer[0].length > 3)
+        ) textC += "\n1. ✔ " + intendedAnswer[0]
+        else textC += "\n1. ❌ " + intendedAnswer[0]
+        if (answer[1] == intendedAnswer[1] || (LevenshteinDistance().apply(
+                intendedAnswer[1],
+                answer[1]
+            ) <= 2 && answer[1].length > 3)
+        ) textC += "\n2. ✔ " + intendedAnswer[1]
+        else textC += "\n2. ❌ " + intendedAnswer[1]
+
+//        if (chosenAnswer[questionNum] == "_, _") textC =
+//            parts[0].drop(1) + "_ (" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "_ (" + dataList[questionNum].answer.split(
+//                ", "
+//            )[1] + ")" + parts[2].dropLast(1)
+//        else if (chosenAnswer[questionNum].split(", ")[0] == dataList[questionNum].answer.split(", ")[0] && chosenAnswer[questionNum].split(
+//                ", "
+//            )[1] == dataList[questionNum].answer.split(", ")[1]
+//        ) textC =
+//            parts[0].drop(1) + chosenAnswer[questionNum].split(", ")[0] + parts[1] + chosenAnswer[questionNum].split(
+//                ", "
+//            )[1] + parts[2].dropLast(1)
+//        else if (chosenAnswer[questionNum].split(", ")[0] == dataList[questionNum].answer.split(", ")[0]) textC =
+//            parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + parts[1] + chosenAnswer[questionNum].split(
+//                ", "
+//            )[1] + "(" + dataList[questionNum].answer.split(", ")[1] + ")" + parts[2].dropLast(1)
+//        else if (chosenAnswer[questionNum].split(", ")[1] == dataList[questionNum].answer.split(", ")[1]) textC =
+//            parts[0].substring(1) + chosenAnswer[questionNum].split(", ")[0] + "(" + dataList[questionNum].answer.split(
+//                ", "
+//            )[0] + ")" + parts[1] + chosenAnswer[questionNum].split(", ")[1] + parts[2].dropLast(1)
+//        else  textC =
+//            parts[0].drop(1) +  chosenAnswer[questionNum].split(", ")[0] + " (" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] +  chosenAnswer[questionNum].split(", ")[1] + " (" + dataList[questionNum].answer.split(
+//                ", "
+//            )[1] + ")" + parts[2].dropLast(1)
         val spannableString = SpannableString(textC)
-        var prev = -1
         for (i in 0..1) {
-            val word = chosenAnswer[questionNum].split(", ")[i]
-            println(textC)
-            println(word)
-            val startIndex = textC.indexOf(word,prev+1)
-            prev = startIndex
+            val word = answer[i]
+            val startIndex = ind[i]
             val endIndex = startIndex + word.length
-            if (chosenAnswer[questionNum].split(", ")[i] == dataList[questionNum].answer.split(", ")[i]) spannableString.setSpan(
-                ForegroundColorSpan(GREEN),
+            if (answer[i] == intendedAnswer[i]) spannableString.setSpan(
+                ForegroundColorSpan(Color.parseColor("#43A614")),
                 startIndex,
                 endIndex,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-            else {
+            else if (LevenshteinDistance().apply(intendedAnswer[i], answer[i]) <= 2) {
                 spannableString.setSpan(
-                    ForegroundColorSpan(RED),
+                    ForegroundColorSpan(YELLOW),
+                    startIndex,
+                    endIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            } else {
+                spannableString.setSpan(
+                    ForegroundColorSpan(Color.parseColor("#f23343")),
                     startIndex,
                     endIndex,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -706,7 +769,8 @@ class SecondActivity : AppCompatActivity() {
 
     private fun showQuestionOptions(questionNumK: Int = questionNum - 1) {
         if (questionNumK in 40..59) chosenAnswer[questionNumK] =
-            firstEditText.text.toString().trim().ifEmpty { "-" } + ", " + secondEditText.text.toString().trim().ifEmpty { "-" }
+            firstEditText.text.toString().trim()
+                .ifEmpty { "-" } + ", " + secondEditText.text.toString().trim().ifEmpty { "-" }
         if (chosenAnswer[questionNum] != "") changeState(
             options[map[chosenAnswer[questionNum]]!!], false
         )
@@ -716,14 +780,15 @@ class SecondActivity : AppCompatActivity() {
 
     private fun showQuestionBlanks(questionNumK: Int = questionNum - 1) {
         if (questionNumK in 40..59) chosenAnswer[questionNumK] =
-            firstEditText.text.toString().trim().ifEmpty { "-" } + ", " + secondEditText.text.toString().trim().ifEmpty { "-" }
+            firstEditText.text.toString().trim()
+                .ifEmpty { "_" } + ", " + secondEditText.text.toString().trim().ifEmpty { "_" }
         turnOnOff(false)
-        if (chosenAnswer[questionNum].split(", ")[0]!="-") firstEditText.setText(
+        if (chosenAnswer[questionNum].split(", ")[0] != "_") firstEditText.setText(
             chosenAnswer[questionNum].split(", ")[0]
         )
         else firstEditText.setText("")
 
-        if (chosenAnswer[questionNum].split(", ")[1]!="-") secondEditText.setText(
+        if (chosenAnswer[questionNum].split(", ")[1] != "_") secondEditText.setText(
             chosenAnswer[questionNum].split(
                 ", "
             )[1]
@@ -742,7 +807,7 @@ class SecondActivity : AppCompatActivity() {
         for (option in options) option.setBackgroundResource(R.drawable.rectangle_button)
         correct.clear()
         chosenAnswer = Array(80) { "" }
-        for (i in 40..59) chosenAnswer[i]="_, _"
+        for (i in 40..59) chosenAnswer[i] = "_, _"
         newDataSet()
         fourOptions()
         questionNum = 0
@@ -840,9 +905,13 @@ class SecondActivity : AppCompatActivity() {
                     checkAnswer(oldNum)
                 }
             } else {
-                if (chosenAnswer[i - 1] != dataList[i - 1].answer) findViewById<Button>(i * randomNum).setBackgroundResource(
+                if ((i in 40..59 && !correct.get(i - 1 + 80)&& !correct.get(i - 1)) || !correct.get(i - 1)) findViewById<Button>(
+                    i * randomNum
+                ).setBackgroundResource(
                     R.drawable.rectangle_button_wrong
                 )
+                else if (i in 40..59 && (!correct.get(i - 1 + 80) || !correct.get(i - 1)))
+                    findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button_mid)
                 else findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button_correct)
                 button.setOnClickListener {
 
@@ -930,7 +999,10 @@ class SecondActivity : AppCompatActivity() {
         else {
             dataList = data!!.questions
             chosenAnswer = data.answers
+            for (i in 0..79) checkAnswer(i)
+            println(correct)
             showResult(data.result, true)
+
         }
 
         print(data)
