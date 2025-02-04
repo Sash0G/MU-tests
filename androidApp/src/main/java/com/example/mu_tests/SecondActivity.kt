@@ -648,18 +648,20 @@ class SecondActivity : AppCompatActivity() {
 //        ) textC += "✅" + dataList[questionNum].answer.split(", ")[1] + parts[2].dropLast(1)
 //        else textC += "❌" + chosenAnswer[questionNum].split(", ")[1] + parts[2].dropLast(1)
         textC += "\n\nВерни отговори:"
-        if (answer[0] == intendedAnswer[0] || (LevenshteinDistance().apply(
+        if(answer[0] == intendedAnswer[0])textC += "\n1. ✔"
+        else if ((LevenshteinDistance().apply(
                 intendedAnswer[0],
                 answer[0]
             ) <= 2 && answer[0].length > 3)
         ) textC += "\n1. ✔ " + intendedAnswer[0]
-        else textC += "\n1. ❌ " + intendedAnswer[0]
-        if (answer[1] == intendedAnswer[1] || (LevenshteinDistance().apply(
+        else textC += "\n1. ✖ " + intendedAnswer[0]
+        if(answer[1] == intendedAnswer[1])textC +="\n2. "
+        else if ((LevenshteinDistance().apply(
                 intendedAnswer[1],
                 answer[1]
             ) <= 2 && answer[1].length > 3)
-        ) textC += "\n2. ✔ " + intendedAnswer[1]
-        else textC += "\n2. ❌ " + intendedAnswer[1]
+        ) textC += "\n2. " + intendedAnswer[1]
+        else textC += "\n2. ✖ " + intendedAnswer[1]
 
 //        if (chosenAnswer[questionNum] == "_, _") textC =
 //            parts[0].drop(1) + "_ (" + dataList[questionNum].answer.split(", ")[0] + ")" + parts[1] + "_ (" + dataList[questionNum].answer.split(
@@ -697,7 +699,7 @@ class SecondActivity : AppCompatActivity() {
             )
             else if (LevenshteinDistance().apply(intendedAnswer[i], answer[i]) <= 2) {
                 spannableString.setSpan(
-                    ForegroundColorSpan(YELLOW),
+                    ForegroundColorSpan(Color.parseColor("#C3B103")),
                     startIndex,
                     endIndex,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE

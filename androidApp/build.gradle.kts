@@ -50,6 +50,7 @@ dependencies {
     implementation (libs.androidx.recyclerview.v121)
     implementation(libs.firebase.config)
     implementation(libs.play.services.measurement.api)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -59,4 +60,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.storage)
     implementation ("com.github.Dimezis:BlurView:version-2.0.5")
+    implementation (libs.firebase.firestore.ktx.v24100)
+    implementation (libs.play.services.base)
+    implementation (libs.firebase.firestore)
+    implementation("com.google.android.gms:play-services-base:18.2.0")
 }

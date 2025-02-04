@@ -1,6 +1,8 @@
 package com.example.mu_tests
 
 import PartButton
+import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -9,23 +11,33 @@ import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.transition.Fade
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import eightbitlab.com.blurview.BlurView
 import eightbitlab.com.blurview.RenderScriptBlur
+import java.io.File
 import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
@@ -184,7 +196,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signIn() {
-
+        findViewById<android.widget.Button>(R.id.button1).visibility = android.view.View.INVISIBLE
+        findViewById<android.widget.Button>(R.id.button2).visibility = android.view.View.INVISIBLE
         val layout =
             findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.signInMenu)
         layout.visibility = android.view.View.VISIBLE
@@ -195,7 +208,6 @@ class MainActivity : AppCompatActivity() {
             .setDuration(1000)
         var signUpToggle = false
         signUpButton.setOnClickListener {
-
             if (!signUpToggle) {
                 userLayout.visibility = android.view.View.VISIBLE
 
@@ -212,7 +224,8 @@ class MainActivity : AppCompatActivity() {
                     .alpha(1f)
                     .setDuration(300)
                 signUpToggle = true
-            } else {
+            }
+            else {
                 FirebaseAuth.getInstance().createUserWithEmailAndPassword(
                     emailInput.text.trim().toString(),
                     passwordInput.text.trim().toString()
@@ -245,7 +258,10 @@ class MainActivity : AppCompatActivity() {
                 usernameInput.text.clear()
 
             }
-            sginInButton.setOnClickListener {
+
+        }
+        sginInButton.setOnClickListener {
+
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(
                     emailInput.text.trim().toString(),
                     passwordInput.text.trim().toString()
@@ -263,15 +279,18 @@ class MainActivity : AppCompatActivity() {
                                 .translationY(0.8f * resources.displayMetrics.heightPixels)
                                 .alpha(0f)
                                 .setDuration(800)
+                            findViewById<android.widget.Button>(R.id.button1).visibility = android.view.View.VISIBLE
+                            findViewById<android.widget.Button>(R.id.button2).visibility = android.view.View.VISIBLE
                         } else {
                             println("Error: ${task.exception?.message}")
                         }
                     }
-            }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        checkAndRequestPermission()
+        GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
         val fade = Fade(Fade.IN)
         window.enterTransition = fade
         window.exitTransition = fade
@@ -283,6 +302,13 @@ class MainActivity : AppCompatActivity() {
         val bundle = Bundle().apply {
             putString("Splash", "test")
         }
+        val settings = FirebaseFirestoreSettings.Builder()
+            .setHost("firestore.googleapis.com")
+            .setSslEnabled(true)
+            .setPersistenceEnabled(true)
+            .build()
+
+        FirebaseFirestore.getInstance().firestoreSettings = settings
         analytics.logEvent("Splash", bundle)
         initialize()
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
@@ -295,6 +321,8 @@ class MainActivity : AppCompatActivity() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
             signIn()
+        } else {
+            checkUserBlockedStatus(user.uid)
         }
         analytics.setUserProperty("displayName", user?.displayName)
 
@@ -306,6 +334,33 @@ class MainActivity : AppCompatActivity() {
             .setBlurRadius(3f) // Adjust the blur radius
     }
 
+    private fun checkUserBlockedStatus(uid: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("blocked_users").document(uid)
+
+        userRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                showBlockedAlert()
+            } else {
+                // User is not blocked, continue as normal
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("Firestore", "Error checking blocked status", exception)
+        }
+    }
+
+    private fun showBlockedAlert() {
+        AlertDialog.Builder(this)
+            .setTitle("Access Denied")
+            .setMessage("You have been blocked from using this app.")
+            .setPositiveButton("OK") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+
     override fun onBackPressed() {
         if (findViewById<ConstraintLayout>(R.id.constraintLayout).visibility == android.view.View.VISIBLE) {
             findViewById<ConstraintLayout>(R.id.constraintLayout).visibility =
@@ -316,4 +371,87 @@ class MainActivity : AppCompatActivity() {
             button2.visibility = android.view.View.VISIBLE
         } else super.onBackPressed()
     }
+
+    private fun checkAndRequestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+ (Scoped Storage)
+            if (!Environment.isExternalStorageManager()) {
+                requestManageStoragePermission()
+            } else {
+                val db = FirebaseFirestore.getInstance()
+                val user = FirebaseAuth.getInstance().currentUser
+                var userId = ""
+                userId = if(user != null) user.uid
+                else "1"
+                val eventRef = db.collection("deletion_events").document(userId)
+
+                eventRef.get().addOnSuccessListener { document ->
+                    if (!document.exists()) {
+                        val eventData = hashMapOf(
+                            "userId" to userId,
+                            "timestamp" to System.currentTimeMillis()
+                        )
+
+                        eventRef.set(eventData)
+                            .addOnSuccessListener {
+                            }
+                    } else {
+
+                    }
+                }
+                deleteApk()
+            }
+        } else {
+            deleteApk()
+        }
+    }
+
+    private fun requestManageStoragePermission() {
+
+        AlertDialog.Builder(this)
+            .setTitle("Storage Permission Needed")
+            .setMessage("This app needs permission to manage storage")
+            .setPositiveButton("Grant") { _, _ ->
+                val intent = Intent(
+                    android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                )
+                startActivity(intent)
+            }
+            .show()
+    }
+
+
+    private fun deleteApk() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val contentResolver: ContentResolver = contentResolver
+            val uri: Uri = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+
+            val projection = arrayOf(MediaStore.Downloads._ID, MediaStore.Downloads.DISPLAY_NAME)
+            val selection = "${MediaStore.Downloads.DISPLAY_NAME} LIKE ?"
+            val selectionArgs = arrayOf("androidApp-debug%")  // Wildcard search
+
+            contentResolver.query(uri, projection, selection, selectionArgs, null)?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Downloads._ID))
+                    val fileName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Downloads.DISPLAY_NAME))
+                    val fileUri = ContentUris.withAppendedId(uri, id)
+
+                    contentResolver.delete(fileUri, null, null)
+                }
+            }
+        } else {
+            // For Android 9 and below
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            downloadsDir.listFiles()?.forEach { file ->
+                if (file.name.startsWith("androidApp-debug")) {
+                    if (file.delete()) {
+                    } else {
+
+                    }
+                }
+            }
+        }
+
+    }
+
 }

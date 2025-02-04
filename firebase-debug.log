@@ -1,0 +1,95 @@
+[debug] [2025-02-02T10:30:03.552Z] ----------------------------------------------------------------------
+[debug] [2025-02-02T10:30:03.554Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\GRIGS\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
+[debug] [2025-02-02T10:30:03.555Z] CLI Version:   13.29.3
+[debug] [2025-02-02T10:30:03.555Z] Platform:      win32
+[debug] [2025-02-02T10:30:03.555Z] Node Version:  v22.13.1
+[debug] [2025-02-02T10:30:03.555Z] Time:          Sun Feb 02 2025 12:30:03 GMT+0200 (Източноевропейско стандартно време)
+[debug] [2025-02-02T10:30:03.555Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-02-02T10:30:03.732Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-02-02T10:30:03.733Z] > authorizing via signed-in user (aleksandargevarna@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  D:\GitHub\MU-tests
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-02-02T10:30:06.306Z] Using project from CLI flag: mu-tests
+[debug] [2025-02-02T10:30:06.306Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:06.307Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:06.308Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/mu-tests [none]
+[debug] [2025-02-02T10:30:06.629Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/mu-tests 200
+[debug] [2025-02-02T10:30:06.630Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/mu-tests {"projectId":"mu-tests","projectNumber":"326715790189","displayName":"MU-tests","name":"projects/mu-tests","resources":{"hostingSite":"mu-tests"},"state":"ACTIVE","etag":"1_db7d335c-918b-4c92-a7a2-16a7cbdedde9"}
+[info] i  Using project mu-tests (MU-tests) 
+[info] 
+=== Functions Setup
+[debug] [2025-02-02T10:30:06.634Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-02-02T10:30:06.634Z] > authorizing via signed-in user (aleksandargevarna@gmail.com)
+[debug] [2025-02-02T10:30:06.634Z] [iam] checking project mu-tests for permissions ["firebase.projects.get"]
+[debug] [2025-02-02T10:30:06.635Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:06.635Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:06.635Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/mu-tests:testIamPermissions [none]
+[debug] [2025-02-02T10:30:06.635Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/mu-tests:testIamPermissions x-goog-quota-user=projects/mu-tests
+[debug] [2025-02-02T10:30:06.635Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/mu-tests:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-02-02T10:30:07.525Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/mu-tests:testIamPermissions 200
+[debug] [2025-02-02T10:30:07.525Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/mu-tests:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-02-02T10:30:07.526Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:07.526Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:07.526Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:07.526Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:07.526Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-02-02T10:30:07.526Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/mu-tests
+[debug] [2025-02-02T10:30:07.527Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-02-02T10:30:07.527Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/mu-tests
+[debug] [2025-02-02T10:30:08.603Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/runtimeconfig.googleapis.com 200
+[debug] [2025-02-02T10:30:08.603Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-02-02T10:30:08.614Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com 200
+[debug] [2025-02-02T10:30:08.614Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-02-02T10:30:08.615Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:08.615Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:08.615Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com:enable [none]
+[debug] [2025-02-02T10:30:08.615Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com:enable x-goog-quota-user=projects/mu-tests
+[debug] [2025-02-02T10:30:09.852Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com:enable 200
+[debug] [2025-02-02T10:30:09.852Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com:enable [omitted]
+[debug] [2025-02-02T10:30:19.867Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:19.868Z] Checked if tokens are valid: true, expires at: 1738495652964
+[debug] [2025-02-02T10:30:19.868Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-02-02T10:30:19.868Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/mu-tests
+[debug] [2025-02-02T10:30:20.937Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com 200
+[debug] [2025-02-02T10:30:20.938Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/mu-tests/services/cloudfunctions.googleapis.com [omitted]
+[info] Let's create a new codebase for your functions.
+[info] A directory corresponding to the codebase will be created in your project
+[info] with sample code pre-configured.
+
+[info] See https://firebase.google.com/docs/functions/organize-functions for
+[info] more information on organizing your functions using codebases.
+
+[info] Functions can be deployed with firebase deploy.
+
+[info] +  Wrote functions/requirements.txt 
+[info] +  Wrote functions/.gitignore 
+[info] +  Wrote functions/main.py 
+[debug] [2025-02-02T10:31:02.314Z] Running command with virtualenv: command="D:\GitHub\MU-tests\functions\venv\Scripts\activate.bat", args=["","&&","pip3","install","--upgrade","pip"]
+[debug] [2025-02-02T10:31:02.464Z] Error: spawn "D:\GitHub\MU-tests\functions\venv\Scripts\activate.bat" ENOENT
+    at notFoundError (C:\Users\GRIGS\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\cross-spawn\lib\enoent.js:6:26)
+    at verifyENOENT (C:\Users\GRIGS\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\cross-spawn\lib\enoent.js:40:16)
+    at cp.emit (C:\Users\GRIGS\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\cross-spawn\lib\enoent.js:27:25)
+    at ChildProcess._handle.onexit (node:internal/child_process:293:12)
+[error] 
+[error] Error: An unexpected error has occurred.
