@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(platform(libs.firebase.bom))
     implementation (libs.firebase.storage)
-    implementation (libs.blurview)
+    implementation ("com.github.Dimezis:BlurView:version-2.0.6")
     implementation (libs.firebase.firestore.ktx.v24100)
     implementation (libs.play.services.base)
     implementation (libs.firebase.firestore)
