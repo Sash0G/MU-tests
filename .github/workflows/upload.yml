@@ -59,7 +59,7 @@ jobs:
         run: |
           # Define variables
           TARGET_OWNER="Sash0G"  
-          TARGET_REPO="MU-test_pubkished" 
+          TARGET_REPO="MU-test_published" 
           TAG_NAME="${{ github.event.head_commit.message }}"
           RELEASE_NAME="Release_$TAG_NAME"
           APK_PATH="androidApp/build/outputs/apk/debug/androidApp-debug.apk"
