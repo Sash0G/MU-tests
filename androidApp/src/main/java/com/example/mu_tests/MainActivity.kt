@@ -73,11 +73,6 @@ class MainActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val latestVersionCode = firebaseRemoteConfig.getString("latest_version_code")
                     val downloadUrl = firebaseRemoteConfig.getString("download_url")
-
-                    println("--------------------")
-                    println(latestVersionCode)
-                    println(getCurrentVersionCode())
-                    println("--------------------")
                     if (latestVersionCode > getCurrentVersionCode()) {
                         showUpdateDialog(downloadUrl)
                     }
