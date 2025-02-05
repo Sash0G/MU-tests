@@ -20,6 +20,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContentProviderCompat.requireContext
@@ -55,7 +56,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var usernameInput: EditText
     lateinit var firstBook: Button
     lateinit var secondBook: Button
-
+    private val manageStoragePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Check the permission again after returning from settings
+        checkAndRequestPermission()
+    }
+    private val updateAppLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        checkForUpdates()
+    }
     private fun checkForUpdates() {
         firebaseRemoteConfig.fetchAndActivate()
             .addOnCompleteListener { task ->
@@ -92,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl))
                 startActivity(intent)
             }
-            .setNegativeButton("Later", null)
+            .setCancelable(false)
             .show()
     }
 
@@ -377,7 +388,6 @@ class MainActivity : AppCompatActivity() {
             // Android 11+ (Scoped Storage)
             if (!Environment.isExternalStorageManager()) {
                 requestManageStoragePermission()
-            } else {
                 val db = FirebaseFirestore.getInstance()
                 val user = FirebaseAuth.getInstance().currentUser
                 var userId = ""
@@ -389,16 +399,12 @@ class MainActivity : AppCompatActivity() {
                     if (!document.exists()) {
                         val eventData = hashMapOf(
                             "userId" to userId,
-                            "timestamp" to System.currentTimeMillis()
                         )
-
                         eventRef.set(eventData)
-                            .addOnSuccessListener {
-                            }
-                    } else {
-
                     }
                 }
+                deleteApk()
+            } else {
                 deleteApk()
             }
         } else {
@@ -407,7 +413,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestManageStoragePermission() {
-
         AlertDialog.Builder(this)
             .setTitle("Storage Permission Needed")
             .setMessage("This app needs permission to manage storage")
@@ -415,8 +420,9 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(
                     android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
                 )
-                startActivity(intent)
+                manageStoragePermissionLauncher.launch(intent)
             }
+            .setCancelable(false)
             .show()
     }
 
