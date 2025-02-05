@@ -79,16 +79,8 @@ jobs:
             -H "Content-Type: application/vnd.android.package-archive" \
             --data-binary @"$APK_PATH" \
             "$UPLOAD_URL?name=$(basename $APK_PATH)"
-          env:
-            TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
-      - name: Upload APK as Release Asset
-        uses: softprops/action-gh-release@v1
-        with:
-          files: androidApp/build/outputs/apk/debug/androidApp-debug.apk
-          tag_name: '${{ github.event.head_commit.message }}'
-          name: 'Release_${{ github.event.head_commit.message }}'
         env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
           
       - name: Clean up
         run: ./gradlew clean
