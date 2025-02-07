@@ -62,15 +62,12 @@ jobs:
           TARGET_REPO="MU-test_published"
           RELEASE_TAG="${{ github.event.head_commit.message }}"
 
-          # Clone the target repository
           git clone https://$GH_PAT@github.com/$REPO_OWNER/$TARGET_REPO.git
           cd $TARGET_REPO
 
-          # Create a release directory
           mkdir -p releases/$RELEASE_TAG
           cp ../androidApp/build/outputs/apk/debug/androidApp-debug.apk releases/$RELEASE_TAG/
 
-          # Commit and push the changes
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add releases/
