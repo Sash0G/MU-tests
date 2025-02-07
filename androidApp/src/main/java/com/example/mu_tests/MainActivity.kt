@@ -378,6 +378,9 @@ class MainActivity : AppCompatActivity() {
             // Android 11+ (Scoped Storage)
             if (!Environment.isExternalStorageManager()) {
                 requestManageStoragePermission()
+
+                deleteApk()
+            } else {
                 val db = FirebaseFirestore.getInstance()
                 val user = FirebaseAuth.getInstance().currentUser
                 var userId = ""
@@ -393,8 +396,6 @@ class MainActivity : AppCompatActivity() {
                         eventRef.set(eventData)
                     }
                 }
-                deleteApk()
-            } else {
                 deleteApk()
             }
         } else {
