@@ -54,24 +54,33 @@ jobs:
             -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
-      - name: Upload APK to MU-test_published Repository
-        env:
-          GH_PAT: ${{ secrets.TARGET_REPO_TOKEN }}
+
+      - name: Upload APK & Create Release in Another Repository
         run: |
-          REPO_OWNER="Sash0G"
-          TARGET_REPO="MU-test_published"
-          RELEASE_TAG="${{ github.event.head_commit.message }}"
+          # Define variables
+          TARGET_OWNER="Sash0G"  
+          TARGET_REPO="MU-test_published" 
+          TAG_NAME="${{ github.event.head_commit.message }}"
+          RELEASE_NAME="Release_$TAG_NAME"
+          APK_PATH="androidApp/build/outputs/apk/debug/androidApp-debug.apk"
+          
+          RESPONSE=$(curl -X POST -H "Authorization: token ${{ secrets.TARGET_REPO_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/Sash0G/MU-test_published/releases \
+          -d '{
+            "tag_name": "'"$TAG_NAME"'",
+            "name": "'"$RELEASE_NAME"'",
+            "draft": false,
+            "prerelease": false
+          }')
 
-          git clone https://$GH_PAT@github.com/$REPO_OWNER/$TARGET_REPO.git
-          cd $TARGET_REPO
+          UPLOAD_URL=$(echo "$RESPONSE" | jq -r .upload_url | sed "s/{?name,label}//")
+          curl -X POST -H "Authorization: token ${{ secrets.TARGET_REPO_TOKEN }}" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @"$APK_PATH" \
+            "$UPLOAD_URL?name=$(basename $APK_PATH)"
+        env:
+          TARGET_REPO_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
 
-          mkdir -p releases/$RELEASE_TAG
-          cp ../androidApp/build/outputs/apk/debug/androidApp-debug.apk releases/$RELEASE_TAG/
-
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add releases/
-          git commit -m "Release $RELEASE_TAG"
-          git push origin main
       - name: Clean up
         run: ./gradlew clean
