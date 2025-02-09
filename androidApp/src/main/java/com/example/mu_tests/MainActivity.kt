@@ -269,8 +269,10 @@ class MainActivity : AppCompatActivity() {
                 )
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
+
                             println("User signed in successfully!")
                             val user = task.result?.user
+                            if(user!=null)checkIfAllowed(user.uid)
                             val profileUpdates = UserProfileChangeRequest.Builder()
                                 .setDisplayName(usernameInput.text.toString()) // Set the desired username
                                 .build()
@@ -308,7 +310,7 @@ class MainActivity : AppCompatActivity() {
             .setSslEnabled(true)
             .setPersistenceEnabled(true)
             .build()
-
+//        FirebaseAuth.getInstance().signOut()
         FirebaseFirestore.getInstance().firestoreSettings = settings
         analytics.logEvent("Splash", bundle)
         initialize()
@@ -324,6 +326,7 @@ class MainActivity : AppCompatActivity() {
             signIn()
         } else {
             checkUserBlockedStatus(user.uid)
+            checkIfAllowed(user.uid)
         }
         analytics.setUserProperty("displayName", user?.displayName)
 
@@ -333,6 +336,24 @@ class MainActivity : AppCompatActivity() {
         blurView.setupWith(decorView.findViewById(android.R.id.content))
             .setFrameClearDrawable(window.decorView.background) // Use RenderScript for the blur
             .setBlurRadius(3f) // Adjust the blur radius
+    }
+    private fun checkIfAllowed(uid: String) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("white_list").document(uid)
+        findViewById<android.widget.Button>(R.id.button1).visibility = android.view.View.INVISIBLE
+        findViewById<android.widget.Button>(R.id.button2).visibility = android.view.View.INVISIBLE
+        userRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                findViewById<android.widget.Button>(R.id.button1).visibility = android.view.View.VISIBLE
+                findViewById<android.widget.Button>(R.id.button2).visibility = android.view.View.VISIBLE
+                println("---------------------------------User is allowed")
+            } else {
+                println("--------------------------------*---User is not allowed")
+                showWaitAlert(uid)
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("Firestore", "Error checking blocked status", exception)
+        }
     }
 
     private fun checkUserBlockedStatus(uid: String) {
@@ -348,6 +369,17 @@ class MainActivity : AppCompatActivity() {
         }.addOnFailureListener { exception ->
             Log.e("Firestore", "Error checking blocked status", exception)
         }
+    }
+
+    private fun showWaitAlert(uid: String) {
+        AlertDialog.Builder(this)
+            .setTitle("Access Denied")
+            .setMessage("You have to wait for approval.")
+            .setPositiveButton("OK") { _, _ ->
+                checkIfAllowed(uid)
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun showBlockedAlert() {
