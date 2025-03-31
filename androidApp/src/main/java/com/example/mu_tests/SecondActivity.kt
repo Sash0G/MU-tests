@@ -553,6 +553,7 @@ class SecondActivity : AppCompatActivity() {
             .subList(0, sizeOfQuestions[1]) + set3Data.filter { it.part in themes!! }.subList(
             0, sizeOfQuestions[2]
         ) + set4Data.filter { it.part in themes!! }.subList(0, sizeOfQuestions[3])
+        maxScore = sizeOfQuestions[0] + 2*sizeOfQuestions[1] + 2*sizeOfQuestions[2] + sizeOfQuestions[3]
         sizeOfQuestions[1] += sizeOfQuestions[0]
         sizeOfQuestions[2] += sizeOfQuestions[1]
         sizeOfQuestions[3] += sizeOfQuestions[2]
@@ -735,7 +736,7 @@ class SecondActivity : AppCompatActivity() {
         }
         question.text = spannableString
     }
-    private val maxScore = sizeOfQuestions[0] + 2*(sizeOfQuestions[1]-sizeOfQuestions[0]) + 2*(sizeOfQuestions[2]-sizeOfQuestions[1]) + (sizeOfQuestions[3]-sizeOfQuestions[2])
+    private var maxScore = 0
     private fun showResult(result: Int = correct.cardinality(), flag: Boolean = false) {
         setNavBar(1, flag)
 
@@ -743,6 +744,7 @@ class SecondActivity : AppCompatActivity() {
         textResult.visibility = TextView.VISIBLE
         fourOptions()
         questionNum = 0
+        if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
         showQuestion()
         showAnswerOptions()
         nextButton.setOnClickListener {
