@@ -59,7 +59,7 @@ class SecondActivity : AppCompatActivity() {
     private var isClicked2 = false
     private var isClicked3 = false
     private var isClicked4 = false
-    private var chosenAnswer = Array(80) { "" }
+    private var chosenAnswer = Array(2000) { "" }
     private val map = mapOf("а" to 0, "б" to 1, "в" to 2, "г" to 3, "да" to 0, "не" to 1)
     private val randomNum = 1000000007
 
@@ -511,7 +511,7 @@ class SecondActivity : AppCompatActivity() {
 
 
     private fun showQuestion() {
-        if (questionNum < 40) {
+        if (questionNum < sizeOfQuestions[1]) {
             question.text = dataList[questionNum].question
             options[0].text = dataList[questionNum].option1
             options[1].text = dataList[questionNum].option2
@@ -546,8 +546,9 @@ class SecondActivity : AppCompatActivity() {
         set2Data = set2Data.shuffled(Random(System.currentTimeMillis()))
         set3Data = set3Data.shuffled(Random(System.currentTimeMillis()))
         set4Data = set4Data.shuffled(Random(System.currentTimeMillis()))
-        if(toggled==0)sizeOfQuestions = arrayOf(min(set1Data.filter { it.part in themes!! }.size, 20), min(set2Data.filter { it.part in themes!! }.size, 20), min(set3Data.filter { it.part in themes!! }.size, 20), min(set4Data.filter { it.part in themes!! }.size, 20));
-        else sizeOfQuestions = arrayOf(set1Data.filter { it.part in themes!! }.size, set2Data.filter { it.part in themes!! }.size, set3Data.filter { it.part in themes!! }.size, set4Data.filter { it.part in themes!! }.size);
+        sizeOfQuestions =
+            if(toggled==0) arrayOf(min(set1Data.filter { it.part in themes!! }.size, 20), min(set2Data.filter { it.part in themes!! }.size, 20), min(set3Data.filter { it.part in themes!! }.size, 20), min(set4Data.filter { it.part in themes!! }.size, 20));
+            else arrayOf(set1Data.filter { it.part in themes!! }.size, set2Data.filter { it.part in themes!! }.size, set3Data.filter { it.part in themes!! }.size, set4Data.filter { it.part in themes!! }.size);
         dataList = set1Data.filter { it.part in themes!! }
             .subList(0, sizeOfQuestions[0]) + set2Data.filter { it.part in themes!! }
             .subList(0, sizeOfQuestions[1]) + set3Data.filter { it.part in themes!! }.subList(
@@ -744,7 +745,7 @@ class SecondActivity : AppCompatActivity() {
         textResult.visibility = TextView.VISIBLE
         fourOptions()
         questionNum = 0
-        if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
+        prevButton.visibility = Button.INVISIBLE
         showQuestion()
         showAnswerOptions()
         nextButton.setOnClickListener {
