@@ -37,6 +37,7 @@ import kotlinx.parcelize.Parcelize
 import org.apache.commons.text.similarity.LevenshteinDistance
 import java.io.File
 import java.util.Vector
+import kotlin.math.min
 import kotlin.random.Random
 
 class SecondActivity : AppCompatActivity() {
@@ -101,6 +102,7 @@ class SecondActivity : AppCompatActivity() {
     var availableWidth = 0.0f
     var t = false
     val locations = mutableListOf<Array<Int>>()
+    var sizeOfQuestions = arrayOf(20,20,20,20)
     private var lastFirstWidth = 0;
     private var lastSecondWidth = 0
     private var backPressedTime: Long = 0
@@ -384,12 +386,12 @@ class SecondActivity : AppCompatActivity() {
         if (chosenAnswer[questionNumK] != dataList[questionNumK].answer) {
             correct.clear(questionNumK)
             correct.clear(questionNumK + 80)
-        } else if (questionNumK < 20 || questionNumK > 59) correct.set(questionNumK)
+        } else if (questionNumK <= sizeOfQuestions[0] || questionNumK >= sizeOfQuestions[2]) correct.set(questionNumK)
         else {
             correct.set(questionNumK)
             correct.set(questionNumK + 80)
         }
-        if (questionNumK in 40..59 && chosenAnswer[questionNumK] != dataList[questionNumK].answer) {
+        if (questionNumK in sizeOfQuestions[1]..<sizeOfQuestions[2] && chosenAnswer[questionNumK] != dataList[questionNumK].answer) {
             var answer = chosenAnswer[questionNumK].split(", ")
             var intendedAnswer = dataList[questionNumK].answer.split(", ")
             if (answer.size == 1) answer = listOf(answer[0], "")
@@ -445,18 +447,18 @@ class SecondActivity : AppCompatActivity() {
         options[0].setOnClickListener {
             changeState(options[0], isClicked1)
             isClicked1 = !isClicked1; isClicked2 = false; isClicked3 = false; isClicked4 = false
-            if (isClicked1 && questionNum < 40) chosenAnswer[questionNum] = "а"
-            else if (isClicked1 && questionNum >= 60) chosenAnswer[questionNum] = "да"
+            if (isClicked1 && questionNum < sizeOfQuestions[1]) chosenAnswer[questionNum] = "а"
+            else if (isClicked1 && questionNum >= sizeOfQuestions[2]) chosenAnswer[questionNum] = "да"
             else chosenAnswer[questionNum] = ""
         }
         options[1].setOnClickListener {
             changeState(options[1], isClicked2)
             isClicked2 = !isClicked2; isClicked1 = false; isClicked3 = false; isClicked4 = false
-            if (isClicked2 && questionNum < 40) chosenAnswer[questionNum] = "б"
-            else if (isClicked2 && questionNum >= 60) chosenAnswer[questionNum] = "не"
+            if (isClicked2 && questionNum < sizeOfQuestions[1]) chosenAnswer[questionNum] = "б"
+            else if (isClicked2 && questionNum >= sizeOfQuestions[2]) chosenAnswer[questionNum] = "не"
             else chosenAnswer[questionNum] = ""
         }
-        if (questionNum < 40) {
+        if (questionNum < sizeOfQuestions[1]) {
             options[0].text = nextQuestion.option1
             options[1].text = nextQuestion.option2
             options[2].text = nextQuestion.option3
@@ -473,19 +475,19 @@ class SecondActivity : AppCompatActivity() {
 
             isClicked1 = false; isClicked2 = false; isClicked3 = false; isClicked4 = false
 
-            if (questionNum < 40) options[2].setOnClickListener {
+            if (questionNum < sizeOfQuestions[1]) options[2].setOnClickListener {
                 changeState(options[2], isClicked3)
                 isClicked3 = !isClicked3; isClicked1 = false; isClicked2 = false; isClicked4 = false
                 if (isClicked3) chosenAnswer[questionNum] = "в"
                 else chosenAnswer[questionNum] = ""
             }
-            if (questionNum < 40) options[3].setOnClickListener {
+            if (questionNum < sizeOfQuestions[1]) options[3].setOnClickListener {
                 changeState(options[3], isClicked4)
                 isClicked4 = !isClicked4; isClicked1 = false; isClicked2 = false; isClicked3 = false
                 if (isClicked4) chosenAnswer[questionNum] = "г"
                 else chosenAnswer[questionNum] = ""
             }
-        } else if (questionNum < 80) {
+        } else if (questionNum < sizeOfQuestions[3]) {
             options[0].text = "да"
             options[1].text = "не"
         }
@@ -522,7 +524,7 @@ class SecondActivity : AppCompatActivity() {
                     TypedValue.COMPLEX_UNIT_SP
                 )
             }
-        } else if (questionNum in 60..79) {
+        } else if (questionNum in sizeOfQuestions[2]..<sizeOfQuestions[3]) {
             question.text = dataList[questionNum].question
             options[0].text = "да"
             options[1].text = "не"
@@ -535,20 +537,16 @@ class SecondActivity : AppCompatActivity() {
         set2Data = set2Data.shuffled(Random(System.currentTimeMillis()))
         set3Data = set3Data.shuffled(Random(System.currentTimeMillis()))
         set4Data = set4Data.shuffled(Random(System.currentTimeMillis()))
-        if (set1Data.filter { it.part in themes!! }.size < 20 || set2Data.filter { it.part in themes!! }.size < 20 || set3Data.filter { it.part in themes!! }.size < 20 || set4Data.filter { it.part in themes!! }.size < 20) {
-            Toast.makeText(this, "Няма достатъчно задачи в избраните теми", Toast.LENGTH_LONG)
-                .show()
-            finish()
-            super.onBackPressed()
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-            dataList = set1Data.filter { it.part in themes!! }
-        } else {
-            dataList = set1Data.filter { it.part in themes!! }
-                .subList(0, 20) + set2Data.filter { it.part in themes!! }
-                .subList(0, 20) + set3Data.filter { it.part in themes!! }.subList(
-                0, 20
-            ) + set4Data.filter { it.part in themes!! }.subList(0, 20)
-        }
+        sizeOfQuestions = arrayOf(min(set1Data.filter { it.part in themes!! }.size, 20), min(set2Data.filter { it.part in themes!! }.size, 20), min(set3Data.filter { it.part in themes!! }.size, 20), min(set4Data.filter { it.part in themes!! }.size, 20));
+        dataList = set1Data.filter { it.part in themes!! }
+            .subList(0, sizeOfQuestions[0]) + set2Data.filter { it.part in themes!! }
+            .subList(0, sizeOfQuestions[1]) + set3Data.filter { it.part in themes!! }.subList(
+            0, sizeOfQuestions[2]
+        ) + set4Data.filter { it.part in themes!! }.subList(0, sizeOfQuestions[3])
+        sizeOfQuestions[1] += sizeOfQuestions[0]
+        sizeOfQuestions[2] += sizeOfQuestions[1]
+        sizeOfQuestions[3] += sizeOfQuestions[2]
+        println(sizeOfQuestions.contentToString())
     }
 
     private fun initialise() {
@@ -715,10 +713,11 @@ class SecondActivity : AppCompatActivity() {
         }
         question.text = spannableString
     }
-
+    val maxScore = sizeOfQuestions[0] + 2*sizeOfQuestions[1] + 2*sizeOfQuestions[2] + sizeOfQuestions[3]
     private fun showResult(result: Int = correct.cardinality(), flag: Boolean = false) {
         setNavBar(1, flag)
-        textResult.text = "Result: " + result + "/120"
+
+        textResult.text = "Result: " + result + "/"+maxScore
         textResult.visibility = TextView.VISIBLE
         fourOptions()
         questionNum = 0
@@ -726,9 +725,9 @@ class SecondActivity : AppCompatActivity() {
         showAnswerOptions()
         nextButton.setOnClickListener {
             if (questionNum == 0) prevButton.visibility = Button.VISIBLE
-            if (questionNum == 39) blankQuestions()
-            if (questionNum == 59) twoOptions()
-            if (questionNum == 78) {
+            if (questionNum == sizeOfQuestions[1]-1) blankQuestions()
+            if (questionNum == sizeOfQuestions[2]-1) twoOptions()
+            if (questionNum == sizeOfQuestions[3]-2) {
                 nextButton.visibility = Button.INVISIBLE
                 if (!flag) startOverButton.visibility = Button.VISIBLE
             }
@@ -738,9 +737,9 @@ class SecondActivity : AppCompatActivity() {
                 locations[questionNum][1]
             )
             showQuestion()
-            if (questionNum < 40) showAnswerOptions()
-            else if (questionNum < 60) showAnswerBlanks()
-            else if (questionNum < 80) showAnswerOptions()
+            if (questionNum < sizeOfQuestions[1]) showAnswerOptions()
+            else if (questionNum < sizeOfQuestions[2]) showAnswerBlanks()
+            else if (questionNum < sizeOfQuestions[3]) showAnswerOptions()
 
         }
         prevButton.setOnClickListener {
@@ -750,16 +749,16 @@ class SecondActivity : AppCompatActivity() {
                 locations[questionNum][1]
             )
             if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
-            if (questionNum == 39) fourOptions()
-            if (questionNum == 59) blankQuestions()
-            if (questionNum == 78) {
+            if (questionNum == sizeOfQuestions[1]-1) fourOptions()
+            if (questionNum == sizeOfQuestions[2]-1) blankQuestions()
+            if (questionNum == sizeOfQuestions[3]-2) {
                 nextButton.visibility = Button.VISIBLE
                 startOverButton.visibility = Button.INVISIBLE
             }
             showQuestion()
-            if (questionNum < 40) showAnswerOptions()
-            else if (questionNum < 60) showAnswerBlanks()
-            else if (questionNum < 80) showAnswerOptions()
+            if (questionNum < sizeOfQuestions[1]) showAnswerOptions()
+            else if (questionNum < sizeOfQuestions[2]) showAnswerBlanks()
+            else if (questionNum < sizeOfQuestions[3]) showAnswerOptions()
         }
         startOverButton.setOnClickListener {
             startOverButton.visibility = Button.INVISIBLE
@@ -770,7 +769,7 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun showQuestionOptions(questionNumK: Int = questionNum - 1) {
-        if (questionNumK in 40..59) chosenAnswer[questionNumK] =
+        if (questionNumK in sizeOfQuestions[1]..<sizeOfQuestions[2]) chosenAnswer[questionNumK] =
             firstEditText.text.toString().trim()
                 .ifEmpty { "-" } + ", " + secondEditText.text.toString().trim().ifEmpty { "-" }
         if (chosenAnswer[questionNum] != "") changeState(
@@ -781,7 +780,7 @@ class SecondActivity : AppCompatActivity() {
     }
 
     private fun showQuestionBlanks(questionNumK: Int = questionNum - 1) {
-        if (questionNumK in 40..59) chosenAnswer[questionNumK] =
+        if (questionNumK in sizeOfQuestions[1]..<sizeOfQuestions[2]) chosenAnswer[questionNumK] =
             firstEditText.text.toString().trim()
                 .ifEmpty { "_" } + ", " + secondEditText.text.toString().trim().ifEmpty { "_" }
         turnOnOff(false)
@@ -808,8 +807,9 @@ class SecondActivity : AppCompatActivity() {
         textResult.visibility = TextView.INVISIBLE
         for (option in options) option.setBackgroundResource(R.drawable.rectangle_button)
         correct.clear()
-        chosenAnswer = Array(80) { "" }
-        for (i in 40..59) chosenAnswer[i] = "_, _"
+
+        chosenAnswer = Array(sizeOfQuestions[3]) { "" }
+        for (i in sizeOfQuestions[1]..<sizeOfQuestions[2]) chosenAnswer[i] = "_, _"
         newDataSet()
         fourOptions()
         questionNum = 0
@@ -817,9 +817,9 @@ class SecondActivity : AppCompatActivity() {
         nextButton.setOnClickListener {
             println(locations.size)
             if (questionNum == 0) prevButton.visibility = Button.VISIBLE
-            if (questionNum == 39) blankQuestions()
-            if (questionNum == 59) twoOptions()
-            if (questionNum == 78) {
+            if (questionNum == sizeOfQuestions[1]-1) blankQuestions()
+            if (questionNum == sizeOfQuestions[2]-1) twoOptions()
+            if (questionNum == sizeOfQuestions[3]-2) {
                 nextButton.visibility = Button.INVISIBLE
                 finishButton.visibility = Button.VISIBLE
             }
@@ -828,9 +828,9 @@ class SecondActivity : AppCompatActivity() {
                 locations[questionNum][0],
                 locations[questionNum][1]
             )
-            if (questionNum < 40) showQuestionOptions()
-            else if (questionNum < 60) showQuestionBlanks()
-            else if (questionNum < 80) showQuestionOptions()
+            if (questionNum < sizeOfQuestions[1]) showQuestionOptions()
+            else if (questionNum < sizeOfQuestions[2]) showQuestionBlanks()
+            else if (questionNum < sizeOfQuestions[3]) showQuestionOptions()
             checkAnswer()
 
         }
@@ -841,21 +841,21 @@ class SecondActivity : AppCompatActivity() {
                 locations[questionNum][1]
             )
             if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
-            if (questionNum == 39) fourOptions()
-            if (questionNum == 59) blankQuestions()
-            if (questionNum == 78) {
+            if (questionNum == sizeOfQuestions[1]-1) fourOptions()
+            if (questionNum == sizeOfQuestions[2]-1) blankQuestions()
+            if (questionNum == sizeOfQuestions[3]-2) {
                 nextButton.visibility = Button.VISIBLE
                 finishButton.visibility = Button.INVISIBLE
             }
-            if (questionNum < 40) showQuestionOptions(questionNum + 1)
-            else if (questionNum < 60) showQuestionBlanks(questionNum + 1)
-            else if (questionNum < 80) showQuestionOptions(questionNum + 1)
+            if (questionNum < sizeOfQuestions[1]) showQuestionOptions(questionNum + 1)
+            else if (questionNum < sizeOfQuestions[2]) showQuestionBlanks(questionNum + 1)
+            else if (questionNum < sizeOfQuestions[3]) showQuestionOptions(questionNum + 1)
             checkAnswer(questionNum + 1)
         }
         finishButton.setOnClickListener {
             questionNum++;
             checkAnswer()
-            if (used.cardinality() == 80) {
+            if (used.cardinality() == sizeOfQuestions[3]) {
                 saveToMyTests()
                 showResult()
             } else {
@@ -878,7 +878,7 @@ class SecondActivity : AppCompatActivity() {
 
     private fun setNavBar(flag: Int, showOldTest: Boolean = false) {
         findViewById<HorizontalScrollView>(R.id.scrollView).smoothScrollTo(0, 0)
-        for (i in 1..80) {
+        for (i in 1..sizeOfQuestions[3]) {
             val button = findViewById<Button>(i * randomNum)
             if (flag == 0) {
                 findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button)
@@ -891,28 +891,28 @@ class SecondActivity : AppCompatActivity() {
                     )
                     if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
                     else prevButton.visibility = Button.VISIBLE
-                    if (questionNum <= 39) fourOptions()
-                    else if (questionNum <= 59) blankQuestions()
-                    else if (questionNum <= 79) twoOptions()
-                    if (questionNum <= 78) {
+                    if (questionNum < sizeOfQuestions[1]) fourOptions()
+                    else if (questionNum < sizeOfQuestions[2]) blankQuestions()
+                    else if (questionNum < sizeOfQuestions[3]) twoOptions()
+                    if (questionNum < sizeOfQuestions[3]-1) {
                         nextButton.visibility = Button.VISIBLE
                         finishButton.visibility = Button.INVISIBLE
                     } else {
                         nextButton.visibility = Button.INVISIBLE
                         finishButton.visibility = Button.VISIBLE
                     }
-                    if (questionNum < 40) showQuestionOptions(oldNum)
-                    else if (questionNum < 60) showQuestionBlanks(oldNum)
-                    else if (questionNum < 80) showQuestionOptions(oldNum)
+                    if (questionNum < sizeOfQuestions[1]) showQuestionOptions(oldNum)
+                    else if (questionNum < sizeOfQuestions[2]) showQuestionBlanks(oldNum)
+                    else if (questionNum < sizeOfQuestions[3]) showQuestionOptions(oldNum)
                     checkAnswer(oldNum)
                 }
             } else {
-                if ((i in 40..59 && !correct.get(i - 1 + 80)&& !correct.get(i - 1)) || !correct.get(i - 1)) findViewById<Button>(
+                if ((i in sizeOfQuestions[1]..<sizeOfQuestions[2] && !correct.get(i - 1 + 80)&& !correct.get(i - 1)) || !correct.get(i - 1)) findViewById<Button>(
                     i * randomNum
                 ).setBackgroundResource(
                     R.drawable.rectangle_button_wrong
                 )
-                else if (i in 40..59 && (!correct.get(i - 1 + 80) || !correct.get(i - 1)))
+                else if (i in sizeOfQuestions[1]..<sizeOfQuestions[2] && (!correct.get(i - 1 + 80) || !correct.get(i - 1)))
                     findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button_mid)
                 else findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button_correct)
                 button.setOnClickListener {
@@ -924,19 +924,19 @@ class SecondActivity : AppCompatActivity() {
                     )
                     if (questionNum == 0) prevButton.visibility = Button.INVISIBLE
                     else prevButton.visibility = Button.VISIBLE
-                    if (questionNum <= 39) fourOptions()
-                    else if (questionNum <= 59) blankQuestions()
-                    else if (questionNum <= 79) twoOptions()
-                    if (questionNum <= 78) {
+                    if (questionNum < sizeOfQuestions[1]) fourOptions()
+                    else if (questionNum < sizeOfQuestions[2]) blankQuestions()
+                    else if (questionNum < sizeOfQuestions[3]) twoOptions()
+                    if (questionNum < sizeOfQuestions[3]-1) {
                         nextButton.visibility = Button.VISIBLE
                         startOverButton.visibility = Button.INVISIBLE
                     } else {
                         nextButton.visibility = Button.INVISIBLE
                         if (!showOldTest) startOverButton.visibility = Button.VISIBLE
                     }
-                    if (questionNum < 40) showAnswerOptions()
-                    else if (questionNum < 60) showAnswerBlanks()
-                    else if (questionNum < 80) showAnswerOptions()
+                    if (questionNum < sizeOfQuestions[1]) showAnswerOptions()
+                    else if (questionNum < sizeOfQuestions[2]) showAnswerBlanks()
+                    else if (questionNum < sizeOfQuestions[3]) showAnswerOptions()
                     showQuestion()
                 }
             }
@@ -965,7 +965,7 @@ class SecondActivity : AppCompatActivity() {
 
         val buttonWidth = (screenWidth * buttonWidthPercent).toInt()
         val buttonHeight = (screenHeight * buttonHeightPercent).toInt()
-        for (i in 1..80) {
+        for (i in 1..sizeOfQuestions[3]) {
             horizontalScrollView.setFadingEdgeLength(100)
             val button = Button(this)
             val layoutParams = LinearLayout.LayoutParams(
@@ -994,14 +994,16 @@ class SecondActivity : AppCompatActivity() {
             insets
         }
         initialise()
-        addButtons()
+
         val data = intent.getParcelableExtra<MyData>("test")
         themes = intent.getStringArrayListExtra("parts")
+        newDataSet()
+        addButtons()
         if (themes != null) newTest()
         else {
             dataList = data!!.questions
             chosenAnswer = data.answers
-            for (i in 0..79) checkAnswer(i)
+            for (i in 0..<sizeOfQuestions[3]) checkAnswer(i)
             println(correct)
             showResult(data.result, true)
 
