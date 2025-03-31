@@ -52,8 +52,8 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var secondEditText: EditText
     private lateinit var textResult: TextView
     private lateinit var questionLayout: ConstraintLayout
-    private val correct = BitSet(160)
-    private val used = BitSet(160)
+    private val correct = BitSet(2000)
+    private val used = BitSet(2000)
     private var questionNum = 0
     private var isClicked1 = false
     private var isClicked2 = false
@@ -394,11 +394,11 @@ class SecondActivity : AppCompatActivity() {
     private fun checkAnswer(questionNumK: Int = questionNum - 1) {
         if (chosenAnswer[questionNumK] != dataList[questionNumK].answer) {
             correct.clear(questionNumK)
-            correct.clear(questionNumK + 80)
+            correct.clear(questionNumK + 1000)
         } else if (questionNumK <= sizeOfQuestions[0] || questionNumK >= sizeOfQuestions[2]) correct.set(questionNumK)
         else {
             correct.set(questionNumK)
-            correct.set(questionNumK + 80)
+            correct.set(questionNumK + 1000)
         }
         if (questionNumK in sizeOfQuestions[1]..<sizeOfQuestions[2] && chosenAnswer[questionNumK] != dataList[questionNumK].answer) {
             var answer = chosenAnswer[questionNumK].split(", ")
@@ -416,21 +416,21 @@ class SecondActivity : AppCompatActivity() {
                 ) <= 2 && answer[1].length > 3))
             ) {
                 correct.set(questionNumK)
-                correct.set(questionNumK + 80)
+                correct.set(questionNumK + 1000)
             } else if (answer[0] == intendedAnswer[0] || (LevenshteinDistance().apply(
                     intendedAnswer[0],
                     answer[0]
                 ) <= 2 && answer[0].length > 3)
             ) {
                 correct.set(questionNumK)
-                correct.clear(questionNumK + 80)
+                correct.clear(questionNumK + 1000)
             } else if (answer[1] == intendedAnswer[1] || (LevenshteinDistance().apply(
                     intendedAnswer[1],
                     answer[1]
                 ) <= 2 && answer[1].length > 3)
             ) {
                 correct.clear(questionNumK)
-                correct.set(questionNumK + 80)
+                correct.set(questionNumK + 1000)
             }
         }
         if (chosenAnswer[questionNumK] == "" || chosenAnswer[questionNumK] == "_, _") {
@@ -929,12 +929,12 @@ class SecondActivity : AppCompatActivity() {
                     checkAnswer(oldNum)
                 }
             } else {
-                if ((i in sizeOfQuestions[1]..<sizeOfQuestions[2] && !correct.get(i - 1 + 80)&& !correct.get(i - 1)) || !correct.get(i - 1)) findViewById<Button>(
+                if ((i in sizeOfQuestions[1]..<sizeOfQuestions[2] && !correct.get(i - 1 + 1000)&& !correct.get(i - 1)) || !correct.get(i - 1)) findViewById<Button>(
                     i * randomNum
                 ).setBackgroundResource(
                     R.drawable.rectangle_button_wrong
                 )
-                else if (i in sizeOfQuestions[1]..<sizeOfQuestions[2] && (!correct.get(i - 1 + 80) || !correct.get(i - 1)))
+                else if (i in sizeOfQuestions[1]..<sizeOfQuestions[2] && (!correct.get(i - 1 + 1000) || !correct.get(i - 1)))
                     findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button_mid)
                 else findViewById<Button>(i * randomNum).setBackgroundResource(R.drawable.rectangle_button_correct)
                 button.setOnClickListener {
