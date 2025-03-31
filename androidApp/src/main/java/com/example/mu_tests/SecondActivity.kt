@@ -713,7 +713,7 @@ class SecondActivity : AppCompatActivity() {
         }
         question.text = spannableString
     }
-    val maxScore = sizeOfQuestions[0] + 2*sizeOfQuestions[1] + 2*sizeOfQuestions[2] + sizeOfQuestions[3]
+    private val maxScore = sizeOfQuestions[0] + 2*(sizeOfQuestions[1]-sizeOfQuestions[0]) + 2*(sizeOfQuestions[2]-sizeOfQuestions[1]) + (sizeOfQuestions[3]-sizeOfQuestions[2])
     private fun showResult(result: Int = correct.cardinality(), flag: Boolean = false) {
         setNavBar(1, flag)
 
