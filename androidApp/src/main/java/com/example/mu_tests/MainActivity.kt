@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var button2: Button
     private lateinit var sginInButton: Button
     private lateinit var signUpButton: Button
+    private lateinit var toggleAll: Button
     private lateinit var userLayout: androidx.constraintlayout.widget.ConstraintLayout
     private lateinit var emailLayout: androidx.constraintlayout.widget.ConstraintLayout
     private lateinit var keyLayout: androidx.constraintlayout.widget.ConstraintLayout
@@ -146,6 +148,7 @@ class MainActivity : AppCompatActivity() {
                 for (i in buttonAdapter.selectedItems) parts.add("Тема ${i + 1}")
                 val intent = Intent(this, SecondActivity::class.java)
                 intent.putStringArrayListExtra("parts", ArrayList(parts))
+                intent.putExtra("toggled", clicked)
                 ContextCompat.startActivity(this, intent, null)
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             }
@@ -156,6 +159,7 @@ class MainActivity : AppCompatActivity() {
     private fun initialize() {
         button = findViewById<Button>(R.id.button1)
         button2 = findViewById<Button>(R.id.button2)
+        toggleAll = findViewById<Button>(R.id.toggleAll)
         signUpButton = findViewById<Button>(R.id.signUp)
         sginInButton = findViewById<Button>(R.id.signIn)
         userLayout =
@@ -290,7 +294,7 @@ class MainActivity : AppCompatActivity() {
                     }
         }
     }
-
+    private var clicked = 0;
     override fun onCreate(savedInstanceState: Bundle?) {
         checkAndRequestPermission()
         GoogleApiAvailability.getInstance().makeGooglePlayServicesAvailable(this)
@@ -329,7 +333,16 @@ class MainActivity : AppCompatActivity() {
             checkIfAllowed(user.uid)
         }
         analytics.setUserProperty("displayName", user?.displayName)
-
+        toggleAll.setOnClickListener {
+            clicked = clicked xor 1
+            if(clicked == 1){toggleAll.setBackgroundResource(R.drawable.rectangle_button_green)
+                toggleAll.setTextColor(Color.WHITE)
+            }
+            else {
+                toggleAll.setBackgroundResource(R.drawable.rectangle_button)
+                toggleAll.setTextColor(Color.BLACK)
+            }
+        }
         val blurView: BlurView = findViewById(R.id.blurView)
         val decorView = window.decorView
 

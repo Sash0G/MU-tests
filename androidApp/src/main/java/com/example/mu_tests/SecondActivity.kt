@@ -1,5 +1,6 @@
 package com.example.mu_tests
 
+import com.example.mu_tests.MainActivity
 import android.graphics.Color
 import android.graphics.Color.YELLOW
 import android.os.Bundle
@@ -80,6 +81,13 @@ class SecondActivity : AppCompatActivity() {
         var result: Int
     ) : Parcelable
 
+    data class ProbabilityData(
+        val firstProbability: List<Double>,
+        val secondProbability: List<Double>,
+        val thirdProbability: List<Double>,
+        val fourthProbability: List<Double>
+    )
+
     private lateinit var dataList: List<DataFormat>
     private lateinit var set1Data: List<DataFormat>
     private lateinit var set2Data: List<DataFormat>
@@ -110,6 +118,7 @@ class SecondActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var runnable: Runnable? = null
     private var themes: ArrayList<String>? = null
+    private var toggled = 0;
     override fun onBackPressed() {
         val currentTime = System.currentTimeMillis()
 
@@ -537,7 +546,8 @@ class SecondActivity : AppCompatActivity() {
         set2Data = set2Data.shuffled(Random(System.currentTimeMillis()))
         set3Data = set3Data.shuffled(Random(System.currentTimeMillis()))
         set4Data = set4Data.shuffled(Random(System.currentTimeMillis()))
-        sizeOfQuestions = arrayOf(min(set1Data.filter { it.part in themes!! }.size, 20), min(set2Data.filter { it.part in themes!! }.size, 20), min(set3Data.filter { it.part in themes!! }.size, 20), min(set4Data.filter { it.part in themes!! }.size, 20));
+        if(toggled==0)sizeOfQuestions = arrayOf(min(set1Data.filter { it.part in themes!! }.size, 20), min(set2Data.filter { it.part in themes!! }.size, 20), min(set3Data.filter { it.part in themes!! }.size, 20), min(set4Data.filter { it.part in themes!! }.size, 20));
+        else sizeOfQuestions = arrayOf(set1Data.filter { it.part in themes!! }.size, set2Data.filter { it.part in themes!! }.size, set3Data.filter { it.part in themes!! }.size, set4Data.filter { it.part in themes!! }.size);
         dataList = set1Data.filter { it.part in themes!! }
             .subList(0, sizeOfQuestions[0]) + set2Data.filter { it.part in themes!! }
             .subList(0, sizeOfQuestions[1]) + set3Data.filter { it.part in themes!! }.subList(
@@ -573,6 +583,18 @@ class SecondActivity : AppCompatActivity() {
         firstEditText.inputType = InputType.TYPE_CLASS_TEXT
         secondEditText.imeOptions = EditorInfo.IME_ACTION_GO
         secondEditText.inputType = InputType.TYPE_CLASS_TEXT
+        val file = File("probabilities.json")
+        if (file.exists()) {
+            // Read and print existing data
+            val gson = Gson()
+            val jsonData = file.readText()
+            val loadedData: ProbabilityData = gson.fromJson(jsonData, object : TypeToken<ProbabilityData>() {}.type)
+        } else {
+
+            // Save new data
+//            saveProbabilitiesToFile(file, dataToSave)
+            println("Saved probabilities to file.")
+        }
     }
 
     private fun blankQuestions() {
@@ -997,6 +1019,7 @@ class SecondActivity : AppCompatActivity() {
 
         val data = intent.getParcelableExtra<MyData>("test")
         themes = intent.getStringArrayListExtra("parts")
+        toggled = intent.getIntExtra("toggled", 0)
         newDataSet()
         addButtons()
         if (themes != null) newTest()
