@@ -9,7 +9,6 @@ plugins {
 android {
     namespace = "com.example.mu_tests"
     compileSdk = 34
-
     defaultConfig {
         applicationId = "com.example.mu_tests"
         minSdk = 26
