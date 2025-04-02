@@ -14,6 +14,7 @@ import android.text.SpannableString
 import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
 import android.transition.Fade
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -546,6 +547,10 @@ class SecondActivity : AppCompatActivity() {
         set2Data = set2Data.shuffled(Random(System.currentTimeMillis()))
         set3Data = set3Data.shuffled(Random(System.currentTimeMillis()))
         set4Data = set4Data.shuffled(Random(System.currentTimeMillis()))
+        FirebaseCrashlytics.getInstance().apply {
+            log("Before sizeOfQuestions: themes=$themes")
+            log("Before sizeOfQuestions: set1Data size=${set1Data?.size}")
+        }
         sizeOfQuestions =
             if(toggled==0) arrayOf(min(set1Data.filter { it.part in themes!! }.size, 20), min(set2Data.filter { it.part in themes!! }.size, 20), min(set3Data.filter { it.part in themes!! }.size, 20), min(set4Data.filter { it.part in themes!! }.size, 20));
             else arrayOf(set1Data.filter { it.part in themes!! }.size, set2Data.filter { it.part in themes!! }.size, set3Data.filter { it.part in themes!! }.size, set4Data.filter { it.part in themes!! }.size);
